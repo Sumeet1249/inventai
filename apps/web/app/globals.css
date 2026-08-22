@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap');
 
 :root {
   --primary: #2563EB;
@@ -30,7 +30,7 @@ html {
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: "Google Sans";
   background-color: var(--bg-secondary);
   color: var(--text-primary);
   line-height: 1.6;
@@ -39,7 +39,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-family: "Google Sans";
   font-weight: 700;
   color: var(--text-primary);
 }

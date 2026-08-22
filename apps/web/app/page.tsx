@@ -42,49 +42,92 @@ const AGENTS = [
   },
 ];
 
+// Liquid glass styles
+const liquidGlassButton = {
+  background: 'rgba(255, 255, 255, 0.15)',
+  backdropFilter: 'blur(12px)',
+  WebkitBackdropFilter: 'blur(12px)',
+  border: '1px solid rgba(255, 255, 255, 0.25)',
+  borderRadius: '12px',
+  transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+};
+
+const liquidGlassCard = {
+  background: 'rgba(255, 255, 255, 0.15)',
+  backdropFilter: 'blur(12px)',
+  WebkitBackdropFilter: 'blur(12px)',
+  border: '1px solid rgba(255, 255, 255, 0.25)',
+  borderRadius: '16px',
+  transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+};
+
 export default function Home() {
   return (
-    <div style={{ background: '#000', minHeight: '100vh', color: '#fff', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{ background: '#000', minHeight: '100vh', color: '#fff', fontFamily: '"Google Sans"' }}>
+      <style>{`
+        @keyframes slideInUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInScale {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes slideInLeft {
+          from { opacity: 0; transform: translateX(-40px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+      `}</style>
 
       {/* ── Nav ─────────────────────────────────────────────────── */}
       <nav style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        background: 'rgba(0,0,0,0.7)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        borderBottom: '1px solid rgba(255,255,255,0.08)',
-        padding: '0 40px', height: '60px',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        position: 'fixed', top: '10vh', left: '50%', transform: 'translateX(-50%)', right: 'auto', zIndex: 100,
+        background: 'rgba(255, 255, 255, 0.12)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderRadius: '50px',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        padding: '8px 16px', height: '56px',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '40px',
+        width: 'fit-content',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
       }}>
         {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginRight: '0px' }}>
           <div style={{
-            width: '30px', height: '30px',
-            background: '#fff', borderRadius: '6px',
+            width: '24px', height: '24px',
+            background: '#fff', borderRadius: '4px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <span style={{ color: '#000', fontWeight: '900', fontSize: '13px', letterSpacing: '-0.5px' }}>AI</span>
+            <span style={{ color: '#000', fontWeight: '900', fontSize: '11px', letterSpacing: '-0.5px' }}>AI</span>
           </div>
-          <span style={{ fontWeight: '700', fontSize: '17px', color: '#fff', letterSpacing: '-0.3px' }}>InventAI</span>
+          <span style={{ fontWeight: '700', fontSize: '14px', color: '#fff', letterSpacing: '-0.3px' }}>InventAI</span>
         </div>
 
         {/* Links */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-          {['Features', 'How it works', 'Agents'].map(label => (
-            <a key={label} href={`#${label.toLowerCase().replace(/\s+/, '-')}`}
-              style={{ fontSize: '13px', color: 'rgba(255,255,255,0.55)', textDecoration: 'none', fontWeight: '500' }}>
-              {label}
-            </a>
-          ))}
-          <Link href="/projects/new" style={{
-            fontSize: '13px', fontWeight: '600',
-            background: '#fff', color: '#000',
-            padding: '7px 18px', borderRadius: '6px',
-            textDecoration: 'none',
-          }}>
-            Launch App →
-          </Link>
-        </div>
+        {['Features', 'How it works', 'Agents'].map(label => (
+          <a key={label} href={`#${label.toLowerCase().replace(/\s+/, '-')}`}
+            style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontWeight: '500' }}>
+            {label}
+          </a>
+        ))}
+
+        {/* Launch Button - Pill shaped liquid glass */}
+        <Link href="/projects/new" style={{
+          fontSize: '12px', fontWeight: '600',
+          color: '#fff',
+          padding: '6px 16px', borderRadius: '20px',
+          textDecoration: 'none',
+          ...liquidGlassButton,
+        }} onMouseEnter={e => {
+          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.35)';
+          e.currentTarget.style.border = '1px solid rgba(255, 255, 255, 0.5)';
+        }} onMouseLeave={e => {
+          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+          e.currentTarget.style.border = '1px solid rgba(255, 255, 255, 0.25)';
+        }}>
+          Launch App →
+        </Link>
       </nav>
 
       {/* ── Hero (GradientWaves fills 100 vh) ───────────────────── */}
@@ -92,33 +135,33 @@ export default function Home() {
         {/* Wave canvas — covers the full section */}
         <div style={{ position: 'absolute', inset: 0 }}>
           <GradientWaves
-            horizonColor="#000000"
-            waveColor="#1a1a1a"
+            horizonColor="#0a0a0a"
+            waveColor="#1a1a2e"
             crestColor="#ffffff"
-            speed={0.35}
-            amplitude={2.2}
+            speed={0.132}
+            amplitude={2.0}
             waveScale={0.55}
-            waveRatio={0.9}
-            swell={32}
-            turbulence={18}
+            waveRatio={0.85}
+            swell={30}
+            turbulence={12}
             tilt={1.08}
-            zoom={1.0}
-            height={5.2}
-            fogDepth={14}
+            zoom={1.1}
+            height={3.5}
+            fogDepth={20}
             detail="medium"
-            brightness={1.0}
+            brightness={1.2}
             opacity={1.0}
-            mouseInteraction={true}
-            parallaxStrength={0.4}
-            grain={true}
-            grainIntensity={0.04}
+            mouseInteraction={false}
+            parallaxStrength={0.3}
+            grain={false}
+            grainIntensity={0}
           />
         </div>
 
-        {/* Overlay gradient so text stays readable */}
+        {/* Thin vignette — only darkens top/bottom edges for text legibility */}
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.75) 100%)',
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 70%, rgba(0,0,0,0.6) 100%)',
           pointerEvents: 'none',
         }} />
 
@@ -129,6 +172,7 @@ export default function Home() {
           display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center',
           textAlign: 'center', padding: '0 24px',
+          marginTop: '7vh',
         }}>
           {/* Badge */}
           <div style={{
@@ -147,7 +191,7 @@ export default function Home() {
           {/* Headline */}
           <h1 style={{
             fontSize: 'clamp(40px, 7vw, 82px)',
-            fontWeight: '800',
+            fontWeight: '600',
             color: '#fff',
             lineHeight: '1.08',
             letterSpacing: '-0.03em',
@@ -159,8 +203,8 @@ export default function Home() {
               background: 'linear-gradient(90deg, #ffffff 0%, rgba(255,255,255,0.55) 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
-            }}>
-              Patent &amp; CAD
+            }} className="instrument-serif-regular-italic">
+              Patent & Cad
             </span>{' '}
             in Minutes
           </h1>
@@ -182,21 +226,32 @@ export default function Home() {
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
             <Link href="/projects/new" style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
-              background: '#fff', color: '#000',
-              padding: '13px 28px', borderRadius: '8px',
+              color: '#fff',
+              padding: '13px 28px',
               fontSize: '15px', fontWeight: '700', textDecoration: 'none',
               letterSpacing: '-0.2px',
+              ...liquidGlassButton,
+            }} onMouseEnter={e => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }} onMouseLeave={e => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+              e.currentTarget.style.transform = 'translateY(0)';
             }}>
               Start Inventing →
             </Link>
             <a href="#agents" style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
-              border: '1px solid rgba(255,255,255,0.25)',
-              background: 'rgba(255,255,255,0.05)',
               color: 'rgba(255,255,255,0.8)',
-              padding: '13px 28px', borderRadius: '8px',
+              padding: '13px 28px',
               fontSize: '15px', fontWeight: '600', textDecoration: 'none',
-              backdropFilter: 'blur(8px)',
+              ...liquidGlassButton,
+            }} onMouseEnter={e => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }} onMouseLeave={e => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+              e.currentTarget.style.transform = 'translateY(0)';
             }}>
               See how it works
             </a>
@@ -230,20 +285,22 @@ export default function Home() {
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-          gap: '1px',
-          background: 'rgba(255,255,255,0.08)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: '16px',
-          overflow: 'hidden',
+          gap: '16px',
+          alignItems: 'start',
         }}>
           {AGENTS.map((agent, i) => (
             <div key={agent.title} style={{
-              background: '#000',
+              ...liquidGlassCard,
               padding: '32px 28px',
-              transition: 'background 0.2s',
             }}
-              onMouseEnter={e => (e.currentTarget.style.background = '#111')}
-              onMouseLeave={e => (e.currentTarget.style.background = '#000')}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.22)';
+                e.currentTarget.style.transform = 'translateY(-8px)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
             >
               <div style={{ fontSize: '22px', marginBottom: '14px', color: 'rgba(255,255,255,0.5)' }}>{agent.icon}</div>
               <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#fff', marginBottom: '8px', letterSpacing: '-0.2px' }}>
@@ -314,10 +371,17 @@ export default function Home() {
         </p>
         <Link href="/projects/new" style={{
           display: 'inline-flex', alignItems: 'center', gap: '8px',
-          background: '#fff', color: '#000',
-          padding: '15px 36px', borderRadius: '8px',
+          color: '#fff',
+          padding: '15px 36px',
           fontSize: '16px', fontWeight: '700', textDecoration: 'none',
           letterSpacing: '-0.3px',
+          ...liquidGlassButton,
+        }} onMouseEnter={e => {
+          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)';
+          e.currentTarget.style.transform = 'translateY(-2px)';
+        }} onMouseLeave={e => {
+          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+          e.currentTarget.style.transform = 'translateY(0)';
         }}>
           Start Inventing →
         </Link>
