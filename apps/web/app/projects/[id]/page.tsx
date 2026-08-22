@@ -3,6 +3,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import WorkflowVisualizer from '@/components/dashboard/WorkflowVisualizer';
+import Navbar from '@/components/ui/Navbar';
+import DotGridBackground from '@/components/ui/DotGridBackground';
 
 const ThreeViewer = dynamic(() => import('@/components/cad/ThreeViewer'), { ssr: false });
 const CircuitCanvas = dynamic(() => import('@/components/circuit/CircuitCanvas'), {
@@ -366,34 +368,9 @@ function ProjectDashboardInner({ params, searchParams }: { params: Promise<{ id:
   ] as const;
 
   return (
-    <div style={{ background: '#F8FAFC', minHeight: '100vh' }}>
-      {/* Top Nav */}
-      <nav style={{ background: '#fff', borderBottom: '1px solid #E2E8F0', padding: '0 24px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
-            <div style={{ width: '28px', height: '28px', background: 'linear-gradient(135deg,#2563EB,#059669)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ color: 'white', fontWeight: '800', fontSize: '12px' }}>AI</span>
-            </div>
-            <span style={{ fontWeight: '700', fontSize: '16px', color: '#0F172A', fontFamily: 'Space Grotesk,sans-serif' }}>InventAI</span>
-          </a>
-          <span style={{ color: '#CBD5E1' }}>›</span>
-          <span style={{ fontSize: '13px', color: '#64748B', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{decodeURIComponent(idea)}</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {allDone ? (
-            <span style={{ background: '#F0FDF4', color: '#15803D', padding: '4px 12px', borderRadius: '20px', fontSize: '13px', fontWeight: '600' }}>
-              ✓ {passCount}/6 Completed
-            </span>
-          ) : (
-            <span style={{ background: '#EFF6FF', color: '#1D4ED8', padding: '4px 12px', borderRadius: '20px', fontSize: '13px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Spinner /> Running agents...
-            </span>
-          )}
-        </div>
-      </nav>
-
-      {/* Tab Bar */}
-      <div style={{ background: '#fff', borderBottom: '1px solid #E2E8F0', padding: '0 24px', display: 'flex', gap: '4px', overflowX: 'auto' }}>
+    <div style={{ background: '#000', minHeight: '100vh', color: '#fff', fontFamily: '"Google Sans"' }}>
+      <DotGridBackground />
+      <Navbar variant="dark" showLogo={true} topOffset="4vh" />
         {TABS.map(t => {
           const ag = agents[t.key as keyof typeof agents];
           const isDone = ag?.done && !ag?.error;
