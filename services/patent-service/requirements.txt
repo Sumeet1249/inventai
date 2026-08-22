@@ -1,0 +1,25 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+fastapi
+uvicorn
+sqlalchemy
+chromadb
+sentence-transformers
+httpx
+langchain-google-genai
+pydantic
+langgraph
+langchain
+langchain-core
+langchain-community
+openai
+prompt-toolkit
+prompt-toolkit
+
+chromadb
+opentelemetry-api
+opentelemetry-sdk
+tenacity
+jinja2
+langchain-google-genai
+neo4j
+aiosqlite

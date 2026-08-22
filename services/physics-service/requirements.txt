@@ -1,0 +1,25 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+fastapi==0.110.0
+uvicorn==0.27.1
+pydantic==2.6.3
+deepxde==1.11.1
+numpy==1.26.4
+matplotlib==3.8.3
+scipy==1.12.0
+
+langgraph
+langchain
+langchain-core
+langchain-community
+openai
+prompt-toolkit
+prompt-toolkit
+
+chromadb
+opentelemetry-api
+opentelemetry-sdk
+tenacity
+jinja2
+langchain-google-genai
+torch
+requests

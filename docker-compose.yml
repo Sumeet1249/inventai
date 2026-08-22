@@ -1,0 +1,262 @@
+version: '3.8'
+
+x-backend-env: &backend-env
+  DATABASE_URL: postgresql://${POSTGRES_USER:-inventai}:${POSTGRES_PASSWORD:-supersecret}@postgres:5432/${POSTGRES_DB:-inventai}
+  NEO4J_URI: bolt://neo4j:7687
+  CHROMA_HOST: chromadb
+  REDIS_URL: redis://redis:6379/0
+  RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+  MINIO_URL: http://minio:9000
+  AUTH_SERVICE_URL: http://auth-service:8000
+  PATENT_SERVICE_URL: http://patent-service:8000
+  RESEARCH_SERVICE_URL: http://research-service:8000
+  CAD_SERVICE_URL: http://cad-service:8000
+  PHYSICS_SERVICE_URL: http://physics-service:8000
+  REPORT_SERVICE_URL: http://report-service:8000
+  GRAPH_SERVICE_URL: http://graph-service:8000
+  BUSINESS_SERVICE_URL: http://business-service:8000
+services:
+  # -----------------------------
+  # Polyglot Databases
+  # -----------------------------
+  postgres:
+    image: postgres:15-alpine
+    container_name: inventai-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-inventai}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secret}
+      POSTGRES_DB: ${POSTGRES_DB:-inventai}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U inventai"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  neo4j:
+    image: neo4j:5.12.0
+    container_name: inventai-neo4j
+    environment:
+      NEO4J_AUTH: ${NEO4J_USER:-neo4j}/${NEO4J_PASSWORD:-password}
+      NEO4J_apoc_export_file_enabled: "true"
+      NEO4J_apoc_import_file_enabled: "true"
+      NEO4J_apoc_import_file_use__neo4j__config: "true"
+      NEO4J_PLUGINS: '["apoc", "graph-data-science"]'
+    ports:
+      - "7474:7474" # HTTP Browser
+      - "7687:7687" # Bolt
+    volumes:
+      - neo4jdata:/data
+
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: inventai-chromadb
+    environment:
+      - IS_PERSISTENT=TRUE
+    ports:
+      - "8000:8000"
+    volumes:
+      - chromadata:/chroma/chroma
+
+  redis:
+    image: redis:7-alpine
+    container_name: inventai-redis
+    ports:
+      - "6379:6379"
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: inventai-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+    ports:
+      - "5672:5672"
+      - "15672:15672" # Management UI
+
+  minio:
+    image: minio/minio
+    container_name: inventai-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-password123}
+    ports:
+      - "9000:9000" # API
+      - "9001:9001" # Console
+    volumes:
+      - miniodata:/data
+
+  # -----------------------------
+  # Observability Stack
+  # -----------------------------
+  prometheus:
+    image: prom/prometheus
+    container_name: inventai-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infrastructure/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana
+    container_name: inventai-grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: inventai-jaeger
+    ports:
+      - "16686:16686" # UI
+      - "4317:4317"   # OTLP gRPC
+
+  # -----------------------------
+  # API Gateway
+  # -----------------------------
+  nginx:
+    image: nginx:alpine
+    container_name: inventai-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - web
+      - innovation-engine
+      - cad-service
+      - physics-service
+      - report-service
+      - graph-service
+      - patent-service
+      - auth-service
+      - business-service
+
+  # -----------------------------
+  # Frontend
+  # -----------------------------
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: inventai-web
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1
+    ports:
+      - "3001:3000"
+
+  # -----------------------------
+  # Microservices
+  # -----------------------------
+  innovation-engine:
+    build:
+      context: .
+      dockerfile: services/innovation-engine/Dockerfile
+    container_name: inventai-innovation-engine
+    env_file:
+      - .env
+    environment:
+      <<: *backend-env
+
+  cad-service:
+    build:
+      context: .
+      dockerfile: services/cad-service/Dockerfile
+    container_name: inventai-cad-service
+    env_file:
+      - .env
+    environment:
+      <<: *backend-env
+    volumes:
+      - /tmp/cad_exports:/tmp/cad_exports
+
+  physics-service:
+    build:
+      context: .
+      dockerfile: services/physics-service/Dockerfile
+    container_name: inventai-physics-service
+    env_file:
+      - .env
+    environment:
+      <<: *backend-env
+    volumes:
+      - /tmp/cad_exports:/tmp/cad_exports
+      - /tmp/physics_exports:/tmp/physics_exports
+
+  report-service:
+    build:
+      context: .
+      dockerfile: services/report-service/Dockerfile
+    container_name: inventai-report-service
+    env_file:
+      - .env
+    environment:
+      <<: *backend-env
+    volumes:
+      - /tmp/cad_exports:/tmp/cad_exports
+      - /tmp/physics_exports:/tmp/physics_exports
+      - /tmp/report_exports:/tmp/report_exports
+
+  graph-service:
+    build:
+      context: .
+      dockerfile: services/graph-service/Dockerfile
+    container_name: inventai-graph-service
+    env_file:
+      - .env
+    environment:
+      <<: *backend-env
+
+  research-service:
+    build:
+      context: .
+      dockerfile: services/research-service/Dockerfile
+    container_name: inventai-research-service
+    env_file:
+      - .env
+    environment:
+      <<: *backend-env
+
+  patent-service:
+    build:
+      context: .
+      dockerfile: services/patent-service/Dockerfile
+    container_name: inventai-patent-service
+    env_file:
+      - .env
+    environment:
+      <<: *backend-env
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: services/auth-service/Dockerfile
+    container_name: inventai-auth-service
+    env_file:
+      - .env
+    environment:
+      <<: *backend-env
+
+  business-service:
+    build:
+      context: .
+      dockerfile: services/business-service/Dockerfile
+    container_name: inventai-business-service
+    env_file:
+      - .env
+    environment:
+      <<: *backend-env
+    volumes:
+      - /tmp/business_exports:/tmp/business_exports
+
+
+volumes:
+  pgdata:
+  neo4jdata:
+  chromadata:
+  miniodata:

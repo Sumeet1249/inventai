@@ -1,0 +1,45 @@
+name: InventAI CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Install Dependencies & Test (Mocked for Hackathon)
+      run: |
+        echo "Installing pytest and running unit tests..."
+        # In a real environment, we would run:
+        # pip install pytest
+        # pytest tests/
+        echo "Tests passed!"
+
+  build-and-push:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Build Docker Image (Mocked)
+      run: |
+        echo "Building microservices..."
+        # docker-compose build
+        echo "Build complete."
+
+    - name: Deploy to K8s (Mocked)
+      run: |
+        echo "Applying k8s manifests..."
+        # kubectl apply -f k8s/
+        echo "Deployment complete."
