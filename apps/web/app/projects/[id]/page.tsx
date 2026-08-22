@@ -371,6 +371,9 @@ function ProjectDashboardInner({ params, searchParams }: { params: Promise<{ id:
     <div style={{ background: '#000', minHeight: '100vh', color: '#fff', fontFamily: '"Google Sans"' }}>
       <DotGridBackground />
       <Navbar variant="dark" showLogo={true} topOffset="4vh" />
+
+      {/* Tab Bar */}
+      <div style={{ background: 'rgba(255, 255, 255, 0.05)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', padding: '0 24px', display: 'flex', gap: '4px', overflowX: 'auto', position: 'relative', zIndex: 10 }}>
         {TABS.map(t => {
           const ag = agents[t.key as keyof typeof agents];
           const isDone = ag?.done && !ag?.error;
@@ -392,7 +395,7 @@ function ProjectDashboardInner({ params, searchParams }: { params: Promise<{ id:
       </div>
 
       {/* Content */}
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '28px 24px' }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '28px 24px', position: 'relative', zIndex: 5 }}>
 
         {/* ── Overview Tab ── */}
         {tab === 'overview' && (
