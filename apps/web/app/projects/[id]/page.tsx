@@ -7,14 +7,6 @@ import Navbar from '@/components/ui/Navbar';
 import DotGridBackground from '@/components/ui/DotGridBackground';
 
 const ThreeViewer = dynamic(() => import('@/components/cad/ThreeViewer'), { ssr: false });
-const CircuitCanvas = dynamic(() => import('@/components/circuit/CircuitCanvas'), {
-  ssr: false,
-  loading: () => (
-    <div style={{ height: '600px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', fontSize: '14px', border: '1px solid #E2E8F0', borderRadius: '12px' }}>
-      Loading circuit designer...
-    </div>
-  ),
-});
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
 
@@ -250,7 +242,7 @@ function ProjectDashboardInner({ params, searchParams }: { params: Promise<{ id:
   const resolvedSearch = React.use(searchParams);
   const idea = resolvedSearch?.idea || 'Your invention';
 
-  const [tab, setTab] = useState<'overview' | 'cad' | 'physics' | 'business' | 'research' | 'patent' | 'report' | 'circuit'>('overview');
+  const [tab, setTab] = useState<'overview' | 'cad' | 'physics' | 'business' | 'research' | 'patent' | 'report'>('overview');
   const [agents, setAgents] = useState<Record<string, AgentState>>({
     cad: fresh(), physics: fresh(), business: fresh(), research: fresh(), patent: fresh(), report: fresh(),
   });
@@ -359,7 +351,6 @@ function ProjectDashboardInner({ params, searchParams }: { params: Promise<{ id:
   const TABS = [
     { key: 'overview', label: 'Overview', icon: '📊' },
     { key: 'cad', label: 'CAD', icon: '🔩' },
-    { key: 'circuit', label: 'Circuit', icon: '⚡' },
     { key: 'physics', label: 'Physics', icon: '🔬' },
     { key: 'business', label: 'Business', icon: '💼' },
     { key: 'research', label: 'Research', icon: '📚' },
