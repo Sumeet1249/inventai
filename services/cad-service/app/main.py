@@ -1,18 +1,6 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
-from app.services.cadquery_script import CADGenerator
+# NOTE: This file is NOT the active entry point.
+# The Dockerfile runs: services.cad_service.application.cad_service:app
+# This file is kept only for legacy compatibility. Do not add logic here.
+from services.cad_service.application.cad_service import app  # re-export
 
-app = FastAPI(title="InventAI CAD Service")
-
-class BracketParams(BaseModel):
-    width: float
-    height: float
-    thickness: float
-
-@app.post("/generate/bracket")
-def generate_bracket(params: BracketParams):
-    return CADGenerator.generate_bracket(params.width, params.height, params.thickness)
-
-@app.get("/health")
-def health():
-    return {"status": "healthy"}
+__all__ = ["app"]

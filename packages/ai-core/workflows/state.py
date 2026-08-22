@@ -9,9 +9,12 @@ def merge_dicts(a: Dict[str, Any], b: Dict[str, Any]) -> Dict[str, Any]:
     result.update(b)
     return result
 
-class WorkflowState(TypedDict):
+class WorkflowState(TypedDict, total=False):
     """
     Advanced Execution State for LangGraph Workflows.
+    total=False makes all keys optional at construction time so partial
+    initial states (e.g. WorkflowState(workflow_id=..., input_data=...))
+    don't raise KeyError. LangGraph fills in missing keys as workflows run.
     """
     # 1. Conversation & Memory
     messages: Annotated[list[BaseMessage], add_messages]

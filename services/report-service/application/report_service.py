@@ -68,6 +68,10 @@ app = FastAPI(
     version="1.0.0"
 )
 
+@app.get("/health", tags=["System"])
+def health():
+    return {"status": "healthy", "service": "report-service"}
+
 # Lazy import to avoid circular dependencies
 from services.report_service.api.routers import router
 app.include_router(router)

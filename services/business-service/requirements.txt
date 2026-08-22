@@ -2,5 +2,15 @@ fastapi==0.110.0
 uvicorn==0.27.1
 pydantic==2.6.3
 openpyxl==3.1.2
-scrapy==2.11.1
 langchain-google-genai
+langgraph
+langchain
+langchain-core
+langchain-community
+openai
+chromadb
+opentelemetry-api
+opentelemetry-sdk
+tenacity
+jinja2
+prompt-toolkit
