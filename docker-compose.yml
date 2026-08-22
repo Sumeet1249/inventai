@@ -172,8 +172,25 @@ services:
       - .env
     environment:
       <<: *backend-env
+      HF_HOME: /models/hf_cache
+      TRANSFORMERS_CACHE: /models/hf_cache
+      # Pass HuggingFace token so the model can be downloaded from gated repos
+      HUGGING_FACE_HUB_TOKEN: ${HF_TOKEN:-}
     volumes:
       - /tmp/cad_exports:/tmp/cad_exports
+      # Named volume — CAD-Coder weights (~4.5 GB) persist across rebuilds
+      - cad_model_cache:/models/hf_cache
+      # Host cache fallback — also mount the Windows host HF cache so
+      # weights downloaded by download_cad_model.py are visible immediately
+      - ${USERPROFILE}/.cache/inventai_cad_coder:/models/hf_host_cache
+    # Enable NVIDIA GPU access for 4-bit inference (bitsandbytes)
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
   physics-service:
     build:
@@ -260,3 +277,4 @@ volumes:
   neo4jdata:
   chromadata:
   miniodata:
+  cad_model_cache:    # CAD-Coder 4-bit weights — persists across container rebuilds

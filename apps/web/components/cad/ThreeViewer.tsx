@@ -1,10 +1,43 @@
 'use client';
 
-import React, { Suspense, useState, useRef, useMemo, useCallback } from 'react';
+import React, { Suspense, useState, useRef, useMemo, useCallback, Component } from 'react';
 import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import { OrbitControls, useGLTF, Stage, Grid, GizmoHelper, GizmoViewport, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { Box, Eye, Crosshair, Scissors, RotateCcw, Download, Maximize2, Loader2 } from 'lucide-react';
+
+// ────────── Error Boundary for Canvas crashes ──────────
+interface EBState { hasError: boolean; message: string; }
+class CanvasErrorBoundary extends Component<{ children: React.ReactNode }, EBState> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, message: '' };
+  }
+  static getDerivedStateFromError(error: Error): EBState {
+    return { hasError: true, message: error.message };
+  }
+  componentDidCatch(error: Error) {
+    console.error('[ThreeViewer] Canvas error:', error);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: '12px', color: '#94A3B8' }}>
+          <span style={{ fontSize: '32px' }}>⚠️</span>
+          <p style={{ fontSize: '14px', fontWeight: '600', color: '#64748B', margin: 0 }}>3D viewer failed to load</p>
+          <p style={{ fontSize: '12px', color: '#94A3B8', margin: 0 }}>{this.state.message}</p>
+          <button
+            onClick={() => this.setState({ hasError: false, message: '' })}
+            style={{ padding: '6px 16px', background: '#2563EB', color: 'white', border: 'none', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}
+          >
+            Retry
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 // ────────── 3D Model with clipping support ──────────
 function Model({ url, clippingPlane, wireframe }: { url: string; clippingPlane: THREE.Plane | null; wireframe: boolean }) {
@@ -47,9 +80,13 @@ function WireframeGhost() {
 
 // ────────── Clipping Plane Visualizer ──────────
 function ClipPlaneHelper({ plane, visible }: { plane: THREE.Plane; visible: boolean }) {
-  const helperRef = useRef<THREE.PlaneHelper>(null);
+  // Memoize so we don't create (and leak) a new PlaneHelper on every render
+  const helper = useMemo(() => new THREE.PlaneHelper(plane, 120, 0xef4444), [plane]);
+  React.useEffect(() => {
+    return () => { helper.geometry?.dispose(); };
+  }, [helper]);
   if (!visible) return null;
-  return <primitive object={new THREE.PlaneHelper(plane, 120, 0xef4444)} />;
+  return <primitive object={helper} />;
 }
 
 // ────────── Camera Controller for View Presets ──────────
@@ -237,40 +274,42 @@ export default function ThreeViewer({ modelUrl, isGenerating = false, generation
         </div>
 
         {/* Three.js Canvas */}
-        <Canvas
-          shadows
-          camera={{ position: [100, 80, 100], fov: 50 }}
-          gl={{ localClippingEnabled: true }}
-          style={{ background: '#0F172A' }}
-        >
-          <CameraController preset={activePreset} />
-          <ambientLight intensity={0.4} />
-          <directionalLight position={[10, 10, 5]} intensity={0.8} castShadow />
+        <CanvasErrorBoundary>
+          <Canvas
+            shadows
+            camera={{ position: [100, 80, 100], fov: 50 }}
+            gl={{ localClippingEnabled: true }}
+            style={{ background: '#0F172A' }}
+          >
+            <CameraController preset={activePreset} />
+            <ambientLight intensity={0.4} />
+            <directionalLight position={[10, 10, 5]} intensity={0.8} castShadow />
 
-          <Suspense fallback={
-            <Html center>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+            <Suspense fallback={
+              <Html center>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                  <WireframeGhost />
+                </div>
+              </Html>
+            }>
+              {modelUrl ? (
+                <Stage environment="city" intensity={0.3} adjustCamera={false}>
+                  <Model url={modelUrl} clippingPlane={clippingPlane} wireframe={showWireframe} />
+                </Stage>
+              ) : isGenerating ? (
                 <WireframeGhost />
-              </div>
-            </Html>
-          }>
-            {modelUrl ? (
-              <Stage environment="city" intensity={0.3} adjustCamera={false}>
-                <Model url={modelUrl} clippingPlane={clippingPlane} wireframe={showWireframe} />
-              </Stage>
-            ) : isGenerating ? (
-              <WireframeGhost />
-            ) : null}
-          </Suspense>
+              ) : null}
+            </Suspense>
 
-          {clippingPlane && <ClipPlaneHelper plane={clippingPlane} visible={showSection} />}
+            {clippingPlane && <ClipPlaneHelper plane={clippingPlane} visible={showSection} />}
 
-          <Grid infiniteGrid fadeDistance={200} fadeStrength={2} cellColor="#1E293B" sectionColor="#334155" />
-          <OrbitControls makeDefault enableZoom enablePan />
-          <GizmoHelper alignment="bottom-right" margin={[64, 64]}>
-            <GizmoViewport labelColor="white" axisHeadScale={0.8} />
-          </GizmoHelper>
-        </Canvas>
+            <Grid infiniteGrid fadeDistance={200} fadeStrength={2} cellColor="#1E293B" sectionColor="#334155" />
+            <OrbitControls makeDefault enableZoom enablePan />
+            <GizmoHelper alignment="bottom-right" margin={[64, 64]}>
+              <GizmoViewport labelColor="white" axisHeadScale={0.8} />
+            </GizmoHelper>
+          </Canvas>
+        </CanvasErrorBoundary>
       </div>
 
       {/* ── Right Spec Panel (30%) ── */}

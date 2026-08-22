@@ -5,6 +5,14 @@ import dynamic from 'next/dynamic';
 import WorkflowVisualizer from '@/components/dashboard/WorkflowVisualizer';
 
 const ThreeViewer = dynamic(() => import('@/components/cad/ThreeViewer'), { ssr: false });
+const CircuitCanvas = dynamic(() => import('@/components/circuit/CircuitCanvas'), {
+  ssr: false,
+  loading: () => (
+    <div style={{ height: '600px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', fontSize: '14px', border: '1px solid #E2E8F0', borderRadius: '12px' }}>
+      Loading circuit designer...
+    </div>
+  ),
+});
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
 
@@ -57,10 +65,12 @@ const Card = ({ children, style = {} }: any) => (
 
 // ────────── CAD Results (Advanced ThreeViewer) ──────────
 const CadResult = ({ data, isGenerating, generationStatus }: { data: any; isGenerating?: boolean; generationStatus?: string }) => {
-  const gltfUrl = data?.gltf_url ? `${API.replace('/api/v1', '')}${data.gltf_url}` : null;
+  // Use a relative URL — Next.js rewrites /api/* → backend so it works
+  // from browser regardless of Docker network or localhost mapping.
+  const gltfUrl = data?.gltf_url ? data.gltf_url : null;
   return (
     <div>
-      <SectionHeader icon="🔩" title="CAD Generation" badge={data ? 'Completed' : 'Running'} badgeType={data ? 'green' : 'blue'} />
+      <SectionHeader icon="🔩" title="CAD Generation" badge={data?.gltf_url ? 'Completed' : 'Running'} badgeType={data?.gltf_url ? 'green' : 'blue'} />
       <ThreeViewer
         modelUrl={gltfUrl}
         isGenerating={isGenerating || false}
@@ -228,12 +238,17 @@ const ReportResult = ({ data }: { data: any }) => (
 );
 
 // ────────── Main Dashboard ──────────
-export default function ProjectDashboard({ params, searchParams }: { params: Promise<{ id: string }>, searchParams: Promise<{ idea?: string }> }) {
+// React.use() suspends the component while the Promise resolves.
+// It must be called inside a component that is wrapped in <Suspense>.
+// We split into an inner component (allowed to suspend) and an outer shell
+// that provides the <Suspense> boundary.
+
+function ProjectDashboardInner({ params, searchParams }: { params: Promise<{ id: string }>, searchParams: Promise<{ idea?: string }> }) {
   const resolvedParams = React.use(params);
   const resolvedSearch = React.use(searchParams);
   const idea = resolvedSearch?.idea || 'Your invention';
 
-  const [tab, setTab] = useState<'overview' | 'cad' | 'physics' | 'business' | 'research' | 'patent' | 'report'>('overview');
+  const [tab, setTab] = useState<'overview' | 'cad' | 'physics' | 'business' | 'research' | 'patent' | 'report' | 'circuit'>('overview');
   const [agents, setAgents] = useState<Record<string, AgentState>>({
     cad: fresh(), physics: fresh(), business: fresh(), research: fresh(), patent: fresh(), report: fresh(),
   });
@@ -260,7 +275,13 @@ export default function ProjectDashboard({ params, searchParams }: { params: Pro
             try {
               const d = JSON.parse(line.slice(6));
               lastData = d;
-              updateAgent(key, { status: d.status || '' });
+              // Update status AND data on every event so the viewer
+              // gets the gltf_url / results as soon as they arrive
+              updateAgent(key, {
+                status: d.status || '',
+                // Persist partial data if it contains useful fields (e.g. gltf_url)
+                data: (d.gltf_url || d.id || d.novelty_score !== undefined) ? d : lastData,
+              });
             } catch { }
           }
         }
@@ -336,7 +357,8 @@ export default function ProjectDashboard({ params, searchParams }: { params: Pro
   const TABS = [
     { key: 'overview', label: 'Overview', icon: '📊' },
     { key: 'cad', label: 'CAD', icon: '🔩' },
-    { key: 'physics', label: 'Physics', icon: '⚡' },
+    { key: 'circuit', label: 'Circuit', icon: '⚡' },
+    { key: 'physics', label: 'Physics', icon: '🔬' },
     { key: 'business', label: 'Business', icon: '💼' },
     { key: 'research', label: 'Research', icon: '📚' },
     { key: 'patent', label: 'Patent', icon: '📜' },
@@ -491,5 +513,20 @@ export default function ProjectDashboard({ params, searchParams }: { params: Pro
 
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
+  );
+}
+
+// Outer shell — provides the Suspense boundary required by React.use() inside ProjectDashboardInner
+export default function ProjectDashboard({ params, searchParams }: { params: Promise<{ id: string }>, searchParams: Promise<{ idea?: string }> }) {
+  return (
+    <React.Suspense fallback={
+      <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ width: '36px', height: '36px', border: '3px solid #E2E8F0', borderTop: '3px solid #2563EB', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+        <p style={{ fontSize: '14px', color: '#94A3B8', fontWeight: '500' }}>Loading project...</p>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    }>
+      <ProjectDashboardInner params={params} searchParams={searchParams} />
+    </React.Suspense>
   );
 }

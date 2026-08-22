@@ -34,5 +34,11 @@ class CADExportResponse(BaseModel):
 
 class CADGenerationRequest(BaseModel):
     project_id: str
-    prompt: str = Field(description="Natural language description of the part.")
+    prompt: Optional[str] = Field(None, description="Natural language description of the part.")
+    idea_description: Optional[str] = Field(None, description="Alias for prompt (accepted from innovation engine).")
     constraints: Optional[Dict[str, Any]] = None
+
+    @property
+    def effective_prompt(self) -> str:
+        """Return whichever of prompt / idea_description is provided."""
+        return self.prompt or self.idea_description or ""
