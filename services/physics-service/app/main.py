@@ -229,26 +229,15 @@ async def self_correct_physics(request: PhysiXSelfCorrectionRequest):
 
 
 @app.post("/api/v1/physics/simulate")
-async def run_physics_simulation(
-    project_id: str,
-    invention_type: str,
-    design_params: DesignParamsRequest,
-    physics_types: Optional[List[str]] = None,
-):
+async def run_physics_simulation(request: PhysiXSelfCorrectionRequest):
     """
     Run a single physics simulation (no auto-correction).
 
     Useful for quick validation of a design without self-correction loop.
-    This is an alias for self-correct for backward compatibility.
+    This is an alias for self-correct with max_iterations=1.
     """
-    # Convert to self-correct request format
-    request = PhysiXSelfCorrectionRequest(
-        project_id=project_id,
-        invention_type=invention_type,
-        design_params=design_params,
-        constraints=[],
-        max_iterations=1  # Only one iteration for /simulate
-    )
+    # Set max iterations to 1 for single simulation
+    request.max_iterations = 1
     
     # Call the self-correction endpoint logic
     return await self_correct_physics(request)
