@@ -41,7 +41,7 @@ app = FastAPI(
 class PhysicsConstraintRequest(BaseModel):
     """Physics constraint from requirements"""
 
-    type: str  # "structural", "thermal", "fluid", etc.
+    type: str  # Accept as string, will convert to enum
     parameter: str  # "max_stress", "temperature", etc.
     limit: float
     unit: str
