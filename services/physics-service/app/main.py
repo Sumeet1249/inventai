@@ -239,59 +239,19 @@ async def run_physics_simulation(
     Run a single physics simulation (no auto-correction).
 
     Useful for quick validation of a design without self-correction loop.
+    This is an alias for self-correct for backward compatibility.
     """
-    try:
-        logger.info(f"Running physics simulation for {invention_type}")
-
-        # Select physics types
-        if physics_types:
-            selected_physics = [PhysicsType[p.upper()] for p in physics_types if hasattr(PhysicsType, p.upper())]
-        else:
-            selected_physics = await physix_engine.select_physics(invention_type)
-
-        results = []
-
-        # Run simulations
-        for physics_type in selected_physics:
-            if physics_type == PhysicsType.STRUCTURAL:
-                result = await physix_engine.run_structural_simulation(design_params.dict(), [])
-            elif physics_type == PhysicsType.THERMAL:
-                result = await physix_engine.run_thermal_simulation(design_params.dict(), [])
-            else:
-                continue
-
-            results.append(
-                {
-                    "type": result.simulation_type.value,
-                    "status": result.status,
-                    "metric": result.primary_metric,
-                    "metric_name": result.primary_metric_name,
-                    "unit": result.primary_metric_unit,
-                    "limit": result.limit,
-                    "safety_factor": result.safety_factor,
-                    "explanation": result.explanation,
-                }
-            )
-
-        # Compute score
-        physix_score = await physix_engine.compute_physix_score(physix_engine.physics_results)
-
-        return {
-            "project_id": project_id,
-            "invention_type": invention_type,
-            "physics_results": results,
-            "physix_score": {
-                "overall_score": physix_score.overall_score,
-                "structural_score": physix_score.structural_score,
-                "thermal_score": physix_score.thermal_score,
-                "safety_factor": physix_score.safety_factor,
-                "manufacturability": physix_score.manufacturability,
-            },
-        }
-
-    except Exception as e:
-        logger.error(f"Physics simulation error: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+    # Convert to self-correct request format
+    request = PhysiXSelfCorrectionRequest(
+        project_id=project_id,
+        invention_type=invention_type,
+        design_params=design_params,
+        constraints=[],
+        max_iterations=1  # Only one iteration for /simulate
+    )
+    
+    # Call the self-correction endpoint logic
+    return await self_correct_physics(request)
 
 
 @app.get("/api/v1/physics/test")
