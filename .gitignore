@@ -1,12 +1,45 @@
+# Dependencies
 node_modules/
 .next/
 dist/
 build/
+
+# Logs
 *.log
+logs/
+
+# Environment variables (NEVER commit .env files with secrets)
 .env
+.env.local
+.env.*.local
+
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.egg-info/
 .pytest_cache/
 .coverage
 htmlcov/
-.env
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Test files (may contain temporary API keys)
+test_*.ps1
+test_*.py
+download_*.py
+
+# Build artifacts
+.turbo/
+.turbo/**
+
+# Temporary files
+*.tmp
+*.temp
