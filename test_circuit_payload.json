@@ -1,0 +1,8 @@
+{
+  "project_id": "drone-test-001",
+  "cad_spec": {
+    "component_type": "drone_frame",
+    "span_mm": 350,
+    "motor_count": 4
+  }
+}
