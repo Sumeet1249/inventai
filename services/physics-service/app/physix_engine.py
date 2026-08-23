@@ -116,6 +116,8 @@ class PhysiXEngine:
             "pump": [PhysicsType.FLUID, PhysicsType.STRUCTURAL],
             "turbine": [PhysicsType.FLUID, PhysicsType.STRUCTURAL, PhysicsType.VIBRATION],
             "exoskeleton": [PhysicsType.STRUCTURAL, PhysicsType.VIBRATION],
+            "farming": [PhysicsType.STRUCTURAL, PhysicsType.THERMAL],  # Vertical farming system
+            "vertical_farming": [PhysicsType.STRUCTURAL, PhysicsType.THERMAL],
         }
 
         # Find matching physics types

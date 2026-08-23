@@ -841,7 +841,10 @@ function ProjectDashboardInner({ params, searchParams }: { params: Promise<{ id:
       runJSON('physics', `${API}/physics/self-correct`, { 
         project_id: projectId, 
         invention_type: ideaText?.toLowerCase().includes('drone') ? 'drone' : 
-                        ideaText?.toLowerCase().includes('exoskeleton') ? 'exoskeleton' : 'bracket',
+                        ideaText?.toLowerCase().includes('exoskeleton') ? 'exoskeleton' :
+                        ideaText?.toLowerCase().includes('farming') ? 'farming' :
+                        ideaText?.toLowerCase().includes('pump') ? 'pump' :
+                        ideaText?.toLowerCase().includes('heat') ? 'heat_sink' : 'bracket',
         design_params: {
           thickness_mm: 3.0,
           material: 'Aluminium 6061',
