@@ -1,1 +1,0 @@
-"""Configuration for AI Core"""

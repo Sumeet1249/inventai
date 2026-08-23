@@ -1,0 +1,401 @@
+"""
+Report generation utilities for PDF and DOCX export using ReportLab
+"""
+
+import io
+import os
+import hashlib
+from datetime import datetime
+from pathlib import Path
+from jinja2 import Template
+import logging
+from typing import Optional
+
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak, Image as RLImage
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+
+from docx import Document
+from docx.shared import Inches, Pt, RGBColor
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+from PIL import Image
+import requests
+
+from app.schemas import ReportRequest
+from app.templates_html import ENGINEERING_REPORT_TEMPLATE
+
+logger = logging.getLogger(__name__)
+
+EXPORT_DIR = Path("/tmp/report_exports")
+EXPORT_DIR.mkdir(exist_ok=True, parents=True)
+
+
+def download_image(url: str, timeout: int = 5) -> Optional[bytes]:
+    """Download image from URL with fallback"""
+    try:
+        response = requests.get(url, timeout=timeout)
+        response.raise_for_status()
+        return response.content
+    except Exception as e:
+        logger.warning(f"Failed to download image from {url}: {e}")
+        return None
+
+
+def create_placeholder_image(width: int = 400, height: int = 300) -> bytes:
+    """Create a placeholder image when actual image fails to load"""
+    img = Image.new('RGB', (width, height), color=(240, 245, 250))
+    buffer = io.BytesIO()
+    img.save(buffer, format='PNG')
+    return buffer.getvalue()
+
+
+def generate_html_report(request: ReportRequest) -> str:
+    """Generate HTML report from request data"""
+    try:
+        template = Template(ENGINEERING_REPORT_TEMPLATE)
+        
+        context = {
+            "project_id": request.project_id,
+            "project_title": request.project_title,
+            "project_subtitle": "Autonomous Multi-Agent Engineering Package",
+            "author": request.author,
+            "company_name": request.company_name,
+            "timestamp": request.timestamp or datetime.utcnow().isoformat(),
+            "confidentiality_level": request.confidentiality_level,
+            "executive_summary": f"Engineering package for {request.project_title}",
+            "doc_hash": hashlib.sha256(request.project_id.encode()).hexdigest()[:16],
+            
+            # Agent outputs
+            "patent_output": request.agent_outputs.patent,
+            "physics_output": request.agent_outputs.physics,
+            "cad_output": request.agent_outputs.cad,
+            "pcb_output": request.agent_outputs.pcb,
+            "business_output": request.agent_outputs.business,
+        }
+        
+        html = template.render(**context)
+        return html
+    except Exception as e:
+        logger.error(f"HTML rendering failed: {e}")
+        raise
+
+
+def render_html_to_pdf(html_content: str, project_id: str) -> Optional[bytes]:
+    """
+    Fallback PDF generation using ReportLab (simple approach).
+    For full HTML->PDF with styling, use WeasyPrint (requires system libraries).
+    This generates a basic structural PDF from the report data.
+    """
+    try:
+        pdf_buffer = io.BytesIO()
+        doc = SimpleDocTemplate(
+            pdf_buffer,
+            pagesize=A4,
+            topMargin=0.5*inch,
+            bottomMargin=0.5*inch,
+            leftMargin=0.75*inch,
+            rightMargin=0.75*inch,
+        )
+        
+        story = []
+        styles = getSampleStyleSheet()
+        
+        # Title
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=24,
+            textColor=colors.HexColor('#0F172A'),
+            spaceAfter=30,
+            alignment=TA_CENTER,
+            fontName='Helvetica-Bold',
+        )
+        story.append(Paragraph("Engineering Report", title_style))
+        story.append(Spacer(1, 0.3*inch))
+        
+        # Subtitle
+        subtitle_style = ParagraphStyle(
+            'CustomSubtitle',
+            parent=styles['Normal'],
+            fontSize=14,
+            textColor=colors.HexColor('#475569'),
+            spaceAfter=20,
+            alignment=TA_CENTER,
+        )
+        story.append(Paragraph("CONFIDENTIAL & PROPRIETARY", subtitle_style))
+        story.append(Spacer(1, 0.5*inch))
+        
+        # Content
+        content_style = ParagraphStyle(
+            'Content',
+            parent=styles['Normal'],
+            fontSize=10,
+            leading=14,
+            textColor=colors.HexColor('#1a1a1a'),
+        )
+        
+        story.append(Paragraph(f"<b>Project ID:</b> {project_id}", content_style))
+        story.append(Paragraph(f"<b>Generated:</b> {datetime.utcnow().isoformat()}", content_style))
+        story.append(Spacer(1, 0.3*inch))
+        
+        story.append(Paragraph("This is a basic PDF generated by ReportLab.", content_style))
+        story.append(Paragraph("For full HTML styling support, configure WeasyPrint in production.", content_style))
+        
+        # Build PDF
+        doc.build(story)
+        pdf_buffer.seek(0)
+        return pdf_buffer.getvalue()
+    
+    except Exception as e:
+        logger.error(f"PDF generation failed: {e}")
+        return None
+
+
+def create_docx_report(request: ReportRequest) -> Optional[bytes]:
+    """Generate DOCX document from request data"""
+    try:
+        doc = Document()
+        
+        # Set default font
+        style = doc.styles['Normal']
+        style.font.name = 'Calibri'
+        style.font.size = Pt(11)
+        
+        # ═════════ COVER PAGE ═════════
+        cover_title = doc.add_heading(request.project_title, level=0)
+        cover_title.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+        cover_title.runs[0].font.size = Pt(28)
+        cover_title.runs[0].font.bold = True
+        
+        cover_subtitle = doc.add_paragraph("Engineering Report")
+        cover_subtitle.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+        cover_subtitle.runs[0].font.size = Pt(14)
+        
+        doc.add_paragraph()
+        
+        conf_para = doc.add_paragraph(request.confidentiality_level.upper())
+        conf_para.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+        conf_para.runs[0].font.size = Pt(16)
+        conf_para.runs[0].font.bold = True
+        conf_para.runs[0].font.color.rgb = RGBColor(220, 38, 38)
+        
+        doc.add_paragraph()
+        
+        meta_data = [
+            ("Project ID", request.project_id),
+            ("Author", request.author),
+            ("Company", request.company_name),
+            ("Generated", str(request.timestamp or datetime.utcnow().isoformat())),
+        ]
+        
+        for label, value in meta_data:
+            p = doc.add_paragraph(f"{label}: {value}")
+            p.runs[0].font.size = Pt(10)
+        
+        doc.add_page_break()
+        
+        # ═════════ SECTION 1: EXECUTIVE SUMMARY ═════════
+        doc.add_heading("1. Executive Summary & System Specifications", level=1)
+        
+        if request.agent_outputs.business:
+            bom = request.agent_outputs.business
+            doc.add_heading("Financial Snapshot", level=2)
+            
+            table = doc.add_table(rows=5, cols=2)
+            table.style = 'Light Grid Accent 1'
+            
+            rows = table.rows
+            rows[0].cells[0].text = "Metric"
+            rows[0].cells[1].text = "Value"
+            rows[1].cells[0].text = "Unit COGS"
+            rows[1].cells[1].text = f"${bom.total_cogs_usd:.2f}"
+            rows[2].cells[0].text = "Target MSRP"
+            rows[2].cells[1].text = f"${bom.target_msrp_usd:.2f}"
+            rows[3].cells[0].text = "Gross Margin"
+            rows[3].cells[1].text = f"{bom.gross_margin_percent:.1f}%"
+            rows[4].cells[0].text = "Profit per Unit"
+            rows[4].cells[1].text = f"${bom.target_msrp_usd - bom.total_cogs_usd:.2f}"
+        
+        doc.add_page_break()
+        
+        # ═════════ SECTION 2: PATENT & IP ═════════
+        if request.agent_outputs.patent:
+            patent = request.agent_outputs.patent
+            doc.add_heading("2. Intellectual Property & Freedom to Operate", level=1)
+            
+            doc.add_heading("Patent Analysis", level=2)
+            
+            table = doc.add_table(rows=3, cols=2)
+            table.style = 'Light Grid Accent 1'
+            
+            rows = table.rows
+            rows[0].cells[0].text = "Novelty Score"
+            rows[0].cells[1].text = f"{patent.novelty_score:.1f}/100"
+            rows[1].cells[0].text = "FTO Status"
+            rows[1].cells[1].text = patent.fto_status
+            rows[2].cells[0].text = "White Space Summary"
+            rows[2].cells[1].text = patent.white_space_summary[:200]
+            
+            if patent.claims_draft:
+                doc.add_heading("Draft Patent Claims", level=2)
+                for i, claim in enumerate(patent.claims_draft, 1):
+                    doc.add_paragraph(f"Claim {i}: {claim}", style='List Number')
+            
+            doc.add_page_break()
+        
+        # ═════════ SECTION 3: PHYSICS ═════════
+        if request.agent_outputs.physics:
+            physics = request.agent_outputs.physics
+            doc.add_heading("3. Physics & Structural Analysis", level=1)
+            
+            doc.add_heading("PINN Stress Analysis", level=2)
+            
+            table = doc.add_table(rows=5, cols=2)
+            table.style = 'Light Grid Accent 1'
+            
+            rows = table.rows
+            rows[0].cells[0].text = "Validation Status"
+            rows[0].cells[1].text = physics.validation_status
+            rows[1].cells[0].text = "Safety Factor"
+            rows[1].cells[1].text = f"{physics.safety_factor:.2f}x"
+            rows[2].cells[0].text = "Max Stress"
+            rows[2].cells[1].text = f"{physics.max_stress_mpa:.1f} MPa"
+            rows[3].cells[0].text = "Yield Strength"
+            rows[3].cells[1].text = f"{physics.yield_strength_mpa:.1f} MPa"
+            rows[4].cells[0].text = "Summary"
+            rows[4].cells[1].text = physics.simulation_summary[:200]
+            
+            # Try to embed heatmap image
+            if physics.heatmap_image_url:
+                doc.add_heading("Stress Distribution Heatmap", level=2)
+                image_data = download_image(physics.heatmap_image_url)
+                if image_data:
+                    try:
+                        img_buffer = io.BytesIO(image_data)
+                        doc.add_picture(img_buffer, width=Inches(6))
+                    except Exception as e:
+                        logger.warning(f"Failed to embed heatmap: {e}")
+                        doc.add_paragraph("[Heatmap image failed to load]")
+            
+            doc.add_page_break()
+        
+        # ═════════ SECTION 4: CAD ═════════
+        if request.agent_outputs.cad:
+            cad = request.agent_outputs.cad
+            doc.add_heading("4. Mechanical Design & CAD Blueprint", level=1)
+            
+            doc.add_heading("3D Assembly", level=2)
+            doc.add_paragraph(f"Format: {cad.format}")
+            doc.add_paragraph(f"Dimensions: {cad.dimensions}")
+            doc.add_paragraph(cad.assembly_summary)
+            
+            # Try to embed CAD render
+            if cad.render_image_url:
+                doc.add_heading("CAD Render", level=2)
+                image_data = download_image(cad.render_image_url)
+                if image_data:
+                    try:
+                        img_buffer = io.BytesIO(image_data)
+                        doc.add_picture(img_buffer, width=Inches(6))
+                    except Exception as e:
+                        logger.warning(f"Failed to embed CAD render: {e}")
+                        doc.add_paragraph("[CAD render image failed to load]")
+            
+            doc.add_page_break()
+        
+        # ═════════ SECTION 5: PCB ═════════
+        if request.agent_outputs.pcb:
+            pcb = request.agent_outputs.pcb
+            doc.add_heading("5. Embedded Electronics & PCB Design", level=1)
+            
+            doc.add_heading("Circuit Design", level=2)
+            doc.add_paragraph(f"Board Specs: {pcb.board_specs}")
+            doc.add_paragraph(f"SPICE Status: {pcb.spice_status}")
+            doc.add_paragraph(pcb.schematic_summary)
+            
+            # Try to embed PCB layout
+            if pcb.layout_image_url:
+                doc.add_heading("PCB Layout", level=2)
+                image_data = download_image(pcb.layout_image_url)
+                if image_data:
+                    try:
+                        img_buffer = io.BytesIO(image_data)
+                        doc.add_picture(img_buffer, width=Inches(6))
+                    except Exception as e:
+                        logger.warning(f"Failed to embed PCB layout: {e}")
+                        doc.add_paragraph("[PCB layout image failed to load]")
+            
+            doc.add_page_break()
+        
+        # ═════════ SECTION 6: BOM & FINANCIALS ═════════
+        if request.agent_outputs.business:
+            bom = request.agent_outputs.business
+            doc.add_heading("6. Bill of Materials & Financial Pro-Forma", level=1)
+            
+            doc.add_heading("Bill of Materials", level=2)
+            
+            if bom.bom_table:
+                table = doc.add_table(rows=len(bom.bom_table) + 1, cols=5)
+                table.style = 'Light Grid Accent 1'
+                
+                # Header
+                header = table.rows[0]
+                header.cells[0].text = "Item"
+                header.cells[1].text = "Qty"
+                header.cells[2].text = "Unit Cost"
+                header.cells[3].text = "Total Cost"
+                header.cells[4].text = "Supplier"
+                
+                # Data rows
+                for i, item in enumerate(bom.bom_table, 1):
+                    row = table.rows[i]
+                    row.cells[0].text = item.item
+                    row.cells[1].text = str(item.qty)
+                    row.cells[2].text = f"${item.cost:.2f}"
+                    row.cells[3].text = f"${item.cost * item.qty:.2f}"
+                    row.cells[4].text = item.supplier or "N/A"
+            
+            doc.add_heading("Financial Summary", level=2)
+            doc.add_paragraph(bom.financial_summary)
+        
+        # ═════════ FOOTER ═════════
+        doc.add_page_break()
+        doc.add_heading("Document Information", level=1)
+        doc.add_paragraph(f"Project ID: {request.project_id}")
+        doc.add_paragraph(f"Generated: {request.timestamp or datetime.utcnow().isoformat()}")
+        doc.add_paragraph(f"Confidentiality: {request.confidentiality_level}")
+        doc.add_paragraph("\nGenerated by InventAI Autonomous Engineering Platform")
+        
+        # Save to buffer
+        docx_buffer = io.BytesIO()
+        doc.save(docx_buffer)
+        docx_buffer.seek(0)
+        return docx_buffer.getvalue()
+    
+    except Exception as e:
+        logger.error(f"DOCX generation failed: {e}")
+        return None
+
+
+def save_report_files(project_id: str, pdf_bytes: Optional[bytes], docx_bytes: Optional[bytes]) -> dict:
+    """Save PDF and DOCX files to disk and return URLs"""
+    urls = {}
+    
+    if pdf_bytes:
+        pdf_path = EXPORT_DIR / f"{project_id}_Engineering_Report.pdf"
+        with open(pdf_path, 'wb') as f:
+            f.write(pdf_bytes)
+        urls['pdf_url'] = f"/api/v1/reports/{project_id}_Engineering_Report.pdf"
+        logger.info(f"Saved PDF to {pdf_path}")
+    
+    if docx_bytes:
+        docx_path = EXPORT_DIR / f"{project_id}_Engineering_Report.docx"
+        with open(docx_path, 'wb') as f:
+            f.write(docx_bytes)
+        urls['docx_url'] = f"/api/v1/reports/{project_id}_Engineering_Report.docx"
+        logger.info(f"Saved DOCX to {docx_path}")
+    
+    return urls

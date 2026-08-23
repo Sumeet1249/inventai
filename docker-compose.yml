@@ -1,3 +1,5 @@
+version: '3.8'
+
 x-backend-env: &backend-env
   DATABASE_URL: postgresql://${POSTGRES_USER:-inventai}:${POSTGRES_PASSWORD:-supersecret}@postgres:5432/${POSTGRES_DB:-inventai}
   NEO4J_URI: bolt://neo4j:7687
@@ -134,7 +136,7 @@ services:
       - patent-service
       - auth-service
       - business-service
-      - ai-agent-service
+      - circuit-service
 
   # -----------------------------
   # Frontend
@@ -146,6 +148,7 @@ services:
     container_name: inventai-web
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1
+      - BACKEND_URL=http://nginx:80
     ports:
       - "3001:3000"
 
@@ -200,6 +203,8 @@ services:
       - .env
     environment:
       <<: *backend-env
+      PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION: python
+      DDE_BACKEND: pytorch
     volumes:
       - /tmp/cad_exports:/tmp/cad_exports
       - /tmp/physics_exports:/tmp/physics_exports
@@ -237,6 +242,7 @@ services:
       - .env
     environment:
       <<: *backend-env
+      PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION: python
 
   patent-service:
     build:
@@ -258,6 +264,16 @@ services:
     environment:
       <<: *backend-env
 
+  circuit-service:
+    build:
+      context: .
+      dockerfile: services/circuit-service/Dockerfile
+    container_name: inventai-circuit-service
+    env_file:
+      - .env
+    environment:
+      <<: *backend-env
+
   business-service:
     build:
       context: .
@@ -269,16 +285,6 @@ services:
       <<: *backend-env
     volumes:
       - /tmp/business_exports:/tmp/business_exports
-
-  ai-agent-service:
-    build:
-      context: .
-      dockerfile: services/ai-agent-service/Dockerfile
-    container_name: inventai-ai-agent-service
-    env_file:
-      - .env
-    environment:
-      <<: *backend-env
 
 
 volumes:

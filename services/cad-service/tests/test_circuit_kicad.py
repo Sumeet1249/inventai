@@ -1,6 +1,6 @@
 import pytest
-from services.cad_service.schemas.circuit_schemas import CircuitGraph, Component, Pin, Net, NetNode
-from services.cad_service.exporters.kicad_exporter import KiCadExporter
+from schemas.circuit_schemas import CircuitGraph, Component, Pin, Net, NetNode
+from exporters.kicad_exporter import KiCadExporter
 
 def test_circuit_graph_kicad_export():
     # 1. Define Pins

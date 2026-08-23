@@ -4,14 +4,8 @@ dist/
 build/
 *.log
 .env
-.env.*
-!.env.example
 __pycache__/
 *.pyc
 .pytest_cache/
 .coverage
 htmlcov/
-
-# Scripts containing hardcoded secrets
-download_cad_model.py
-test_cad.ps1

@@ -1,403 +1,396 @@
-'use client';
-
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
-
-// GradientWaves uses WebGL — must be client-side only
-const GradientWaves = dynamic(
-  () => import('@/components/ui/GradientWaves'),
-  { ssr: false }
-);
 
 const AGENTS = [
   {
-    icon: '⬡',
+    icon: '🔩',
     title: 'CAD Generation',
-    desc: 'Auto-generates 3D GLTF / STEP / STL models from your idea using CadQuery + parametric engine.',
+    desc: 'Generates 3D models (GLTF · STEP · STL) using CadQuery + parametric engine',
+    badge: 'CadQuery',
+    grad: 'linear-gradient(135deg,#3B82F6,#1D4ED8)',
+    glow: 'rgba(59,130,246,0.18)',
   },
   {
-    icon: '◈',
+    icon: '⚡',
     title: 'Physics Simulation',
-    desc: 'DeepXDE PINN solver computes stress fields, safety factors and thermal heatmaps.',
+    desc: 'DeepXDE PINN solver — stress analysis, safety factors, heatmaps',
+    badge: 'PINN',
+    grad: 'linear-gradient(135deg,#F97316,#C2410C)',
+    glow: 'rgba(249,115,22,0.18)',
   },
   {
-    icon: '◎',
+    icon: '💼',
     title: 'Business Intelligence',
-    desc: 'Market sizing, competitor analysis and financial BOM with Excel export.',
+    desc: 'Market sizing, competitor landscape, financial BOM & Excel export',
+    badge: 'GPT-4o',
+    grad: 'linear-gradient(135deg,#10B981,#047857)',
+    glow: 'rgba(16,185,129,0.18)',
   },
   {
-    icon: '◇',
-    title: 'Research RAG',
-    desc: 'LangGraph RAG pipeline searches arXiv, PubMed, IEEE and CrossRef in parallel.',
+    icon: '📚',
+    title: 'Research Synthesis',
+    desc: 'RAG pipeline across arXiv · PubMed · IEEE · CrossRef citations',
+    badge: 'LangGraph',
+    grad: 'linear-gradient(135deg,#8B5CF6,#6D28D9)',
+    glow: 'rgba(139,92,246,0.18)',
   },
   {
-    icon: '△',
+    icon: '📜',
     title: 'Patent Analysis',
-    desc: 'Novelty scoring, prior-art gap detection and patent draft generation.',
+    desc: 'Novelty scoring, prior art gaps, and patent claim draft generation',
+    badge: 'AI-Patent',
+    grad: 'linear-gradient(135deg,#F59E0B,#B45309)',
+    glow: 'rgba(245,158,11,0.18)',
   },
   {
-    icon: '□',
+    icon: '📄',
     title: 'Report Generation',
-    desc: 'Full PDF / DOCX engineering report and ZIP package export.',
+    desc: 'Full PDF/DOCX engineering report + ZIP package with all artifacts',
+    badge: 'Auto',
+    grad: 'linear-gradient(135deg,#06B6D4,#0E7490)',
+    glow: 'rgba(6,182,212,0.18)',
   },
 ];
 
-// Liquid glass styles
-const liquidGlassButton = {
-  background: 'rgba(255, 255, 255, 0.15)',
-  backdropFilter: 'blur(12px)',
-  WebkitBackdropFilter: 'blur(12px)',
-  border: '1px solid rgba(255, 255, 255, 0.25)',
-  borderRadius: '12px',
-  transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
-};
-
-const liquidGlassCard = {
-  background: 'rgba(255, 255, 255, 0.15)',
-  backdropFilter: 'blur(12px)',
-  WebkitBackdropFilter: 'blur(12px)',
-  border: '1px solid rgba(255, 255, 255, 0.25)',
-  borderRadius: '16px',
-  transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
-};
+const STEPS = [
+  { n: '01', label: 'Describe your invention', sub: 'One sentence is enough' },
+  { n: '02', label: '6 AI agents run in parallel', sub: 'CAD · Physics · Business · Research · Patent · Report' },
+  { n: '03', label: 'Download your full package', sub: 'GLTF · STEP · STL · PDF · DOCX · BOM' },
+];
 
 export default function Home() {
   return (
-    <div style={{ background: '#000', minHeight: '100vh', color: '#fff', fontFamily: '"Google Sans"' }}>
-      <style>{`
-        @keyframes slideInUp {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeInScale {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
-        }
-        @keyframes slideInLeft {
-          from { opacity: 0; transform: translateX(-40px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-      `}</style>
+    <div style={{ background: '#ffffff', minHeight: '100vh', fontFamily: 'Inter, sans-serif' }}>
 
-      {/* ── Nav ─────────────────────────────────────────────────── */}
+      {/* ── NAV ── */}
       <nav style={{
-        position: 'fixed', top: '10vh', left: '50%', transform: 'translateX(-50%)', right: 'auto', zIndex: 100,
-        background: 'rgba(255, 255, 255, 0.12)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        borderRadius: '50px',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        padding: '8px 16px', height: '56px',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '40px',
-        width: 'fit-content',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+        position: 'sticky', top: 0, zIndex: 100,
+        background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)',
+        borderBottom: '1px solid #F1F5F9',
+        padding: '0 40px', height: '68px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginRight: '0px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{
-            width: '24px', height: '24px',
-            background: '#fff', borderRadius: '4px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: '38px', height: '38px',
+            background: 'linear-gradient(135deg, #2563EB, #059669)',
+            borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 2px 8px rgba(37,99,235,0.3)',
           }}>
-            <span style={{ color: '#000', fontWeight: '900', fontSize: '11px', letterSpacing: '-0.5px' }}>AI</span>
+            <span style={{ color: 'white', fontWeight: '900', fontSize: '15px', letterSpacing: '-0.5px' }}>AI</span>
           </div>
-          <span style={{ fontWeight: '700', fontSize: '14px', color: '#fff', letterSpacing: '-0.3px' }}>InventAI</span>
+          <span style={{ fontWeight: '800', fontSize: '20px', color: '#0F172A', letterSpacing: '-0.5px' }}>InventAI</span>
+          <span style={{
+            background: '#EFF6FF', color: '#2563EB',
+            fontSize: '11px', fontWeight: '700', padding: '3px 10px', borderRadius: '20px',
+            letterSpacing: '0.03em',
+          }}>HACKATHON 2026</span>
         </div>
-
-        {/* Links */}
-        {['Features', 'How it works', 'Agents'].map(label => (
-          <a key={label} href={`#${label.toLowerCase().replace(/\s+/, '-')}`}
-            style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontWeight: '500' }}>
-            {label}
-          </a>
-        ))}
-
-        {/* Launch Button - Pill shaped liquid glass */}
-        <Link href="/projects/new" style={{
-          fontSize: '12px', fontWeight: '600',
-          color: '#fff',
-          padding: '6px 16px', borderRadius: '20px',
-          textDecoration: 'none',
-          ...liquidGlassButton,
-        }} onMouseEnter={e => {
-          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.35)';
-          e.currentTarget.style.border = '1px solid rgba(255, 255, 255, 0.5)';
-        }} onMouseLeave={e => {
-          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-          e.currentTarget.style.border = '1px solid rgba(255, 255, 255, 0.25)';
-        }}>
-          Launch App →
-        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <span style={{ fontSize: '13px', color: '#64748B', fontWeight: '500' }}>Netaji Subhash Engineering College</span>
+          <Link href="/projects/new" style={{
+            background: 'linear-gradient(135deg,#2563EB,#1D4ED8)',
+            color: 'white', padding: '9px 22px', borderRadius: '8px',
+            fontSize: '14px', fontWeight: '700', textDecoration: 'none',
+            boxShadow: '0 2px 8px rgba(37,99,235,0.3)',
+          }}>
+            Start →
+          </Link>
+        </div>
       </nav>
 
-      {/* ── Hero (GradientWaves fills 100 vh) ───────────────────── */}
-      <section style={{ position: 'relative', width: '100%', height: '100vh', overflow: 'hidden' }}>
-        {/* Wave canvas — covers the full section */}
-        <div style={{ position: 'absolute', inset: 0 }}>
-          <GradientWaves
-            horizonColor="#0a0a0a"
-            waveColor="#1a1a2e"
-            crestColor="#ffffff"
-            speed={0.132}
-            amplitude={2.0}
-            waveScale={0.55}
-            waveRatio={0.85}
-            swell={30}
-            turbulence={12}
-            tilt={1.08}
-            zoom={1.1}
-            height={3.5}
-            fogDepth={20}
-            detail="medium"
-            brightness={1.2}
-            opacity={1.0}
-            mouseInteraction={false}
-            parallaxStrength={0.3}
-            grain={false}
-            grainIntensity={0}
-          />
-        </div>
-
-        {/* Thin vignette — only darkens top/bottom edges for text legibility */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 70%, rgba(0,0,0,0.6) 100%)',
-          pointerEvents: 'none',
-        }} />
-
-        {/* Hero text — centred over the waves */}
-        <div style={{
-          position: 'relative', zIndex: 10,
-          height: '100%',
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center',
-          textAlign: 'center', padding: '0 24px',
-          marginTop: '7vh',
-        }}>
-          {/* Badge */}
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: '6px',
-            border: '1px solid rgba(255,255,255,0.2)',
-            background: 'rgba(255,255,255,0.06)',
-            backdropFilter: 'blur(8px)',
-            padding: '5px 14px', borderRadius: '100px',
-            fontSize: '12px', fontWeight: '600', color: 'rgba(255,255,255,0.75)',
-            marginBottom: '28px', letterSpacing: '0.04em', textTransform: 'uppercase',
-          }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#fff', display: 'inline-block' }} />
-            AI-Powered Engineering Platform
-          </div>
-
-          {/* Headline */}
-          <h1 style={{
-            fontSize: 'clamp(40px, 7vw, 82px)',
-            fontWeight: '600',
-            color: '#fff',
-            lineHeight: '1.08',
-            letterSpacing: '-0.03em',
-            marginBottom: '22px',
-            maxWidth: '860px',
-          }}>
-            From Idea to<br />
-            <span style={{
-              background: 'linear-gradient(90deg, #ffffff 0%, rgba(255,255,255,0.55) 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }} className="instrument-serif-regular-italic">
-              Patent & Cad
-            </span>{' '}
-            in Minutes
-          </h1>
-
-          {/* Sub */}
-          <p style={{
-            fontSize: 'clamp(15px, 1.6vw, 18px)',
-            color: 'rgba(255,255,255,0.58)',
-            maxWidth: '540px',
-            lineHeight: '1.75',
-            marginBottom: '40px',
-          }}>
-            InventAI runs 6 specialized AI agents in parallel — generating 3D CAD models,
-            physics simulations, market analysis, research synthesis, and patent drafts
-            from a single idea.
-          </p>
-
-          {/* CTA row */}
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <Link href="/projects/new" style={{
-              display: 'inline-flex', alignItems: 'center', gap: '8px',
-              color: '#fff',
-              padding: '13px 28px',
-              fontSize: '15px', fontWeight: '700', textDecoration: 'none',
-              letterSpacing: '-0.2px',
-              ...liquidGlassButton,
-            }} onMouseEnter={e => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }} onMouseLeave={e => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}>
-              Start Inventing →
-            </Link>
-            <a href="#agents" style={{
-              display: 'inline-flex', alignItems: 'center', gap: '8px',
-              color: 'rgba(255,255,255,0.8)',
-              padding: '13px 28px',
-              fontSize: '15px', fontWeight: '600', textDecoration: 'none',
-              ...liquidGlassButton,
-            }} onMouseEnter={e => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }} onMouseLeave={e => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}>
-              See how it works
-            </a>
-          </div>
-        </div>
-
-        {/* Scroll indicator */}
-        <div style={{
-          position: 'absolute', bottom: '32px', left: '50%',
-          transform: 'translateX(-50%)',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px',
-          opacity: 0.4,
-        }}>
-          <span style={{ fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#fff' }}>Scroll</span>
-          <div style={{ width: '1px', height: '32px', background: 'linear-gradient(to bottom, #fff, transparent)' }} />
-        </div>
-      </section>
-
-      {/* ── Agent Grid ──────────────────────────────────────────── */}
-      <section id="agents" style={{ padding: '100px 40px', maxWidth: '1160px', margin: '0 auto' }}>
-        {/* Section label */}
-        <div style={{ marginBottom: '56px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <span style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '0.14em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>
-            6 Parallel Agents
-          </span>
-          <h2 style={{ fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: '800', color: '#fff', letterSpacing: '-0.03em', lineHeight: '1.1', margin: 0 }}>
-            Every discipline.<br />One prompt.
-          </h2>
-        </div>
-
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-          gap: '16px',
-          alignItems: 'start',
-        }}>
-          {AGENTS.map((agent, i) => (
-            <div key={agent.title} style={{
-              ...liquidGlassCard,
-              padding: '32px 28px',
-            }}
-              onMouseEnter={e => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.22)';
-                e.currentTarget.style.transform = 'translateY(-8px)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              <div style={{ fontSize: '22px', marginBottom: '14px', color: 'rgba(255,255,255,0.5)' }}>{agent.icon}</div>
-              <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#fff', marginBottom: '8px', letterSpacing: '-0.2px' }}>
-                {agent.title}
-              </h3>
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.45)', lineHeight: '1.65', margin: 0 }}>
-                {agent.desc}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── How it works ────────────────────────────────────────── */}
-      <section id="how-it-works" style={{
-        borderTop: '1px solid rgba(255,255,255,0.08)',
-        padding: '100px 40px',
-        maxWidth: '1160px', margin: '0 auto',
-      }}>
-        <span style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '0.14em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', display: 'block', marginBottom: '12px' }}>
-          Pipeline
-        </span>
-        <h2 style={{ fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: '800', color: '#fff', letterSpacing: '-0.03em', marginBottom: '56px' }}>
-          How it works
-        </h2>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-          {[
-            { step: '01', title: 'Describe your invention', body: 'A single natural-language sentence. No CAD knowledge required.' },
-            { step: '02', title: 'AI extracts engineering spec', body: 'GPT-4o-mini parses dimensions, materials, component type and constraints.' },
-            { step: '03', title: '6 agents run in parallel', body: 'CAD, physics, business, research, patent and report agents execute simultaneously.' },
-            { step: '04', title: 'Download your full package', body: 'GLTF / STEP / STL models, simulation data, patent draft and full report — all in one ZIP.' },
-          ].map((item, i, arr) => (
-            <div key={item.step} style={{
-              display: 'grid', gridTemplateColumns: '80px 1fr',
-              gap: '0 32px',
-              padding: '36px 0',
-              borderBottom: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.08)' : 'none',
-              alignItems: 'start',
-            }}>
-              <span style={{ fontSize: '12px', fontWeight: '700', color: 'rgba(255,255,255,0.2)', letterSpacing: '0.1em', paddingTop: '3px' }}>
-                {item.step}
-              </span>
-              <div>
-                <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', margin: '0 0 8px', letterSpacing: '-0.3px' }}>
-                  {item.title}
-                </h3>
-                <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.45)', margin: 0, lineHeight: '1.65' }}>
-                  {item.body}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── CTA Banner ──────────────────────────────────────────── */}
+      {/* ── HERO ── */}
       <section style={{
-        borderTop: '1px solid rgba(255,255,255,0.08)',
-        padding: '100px 40px',
+        maxWidth: '1160px', margin: '0 auto',
+        padding: '96px 40px 80px',
         textAlign: 'center',
       }}>
-        <h2 style={{ fontSize: 'clamp(32px, 5vw, 64px)', fontWeight: '800', color: '#fff', letterSpacing: '-0.03em', marginBottom: '20px', lineHeight: '1.1' }}>
-          Build your first invention.
-        </h2>
-        <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.45)', marginBottom: '36px' }}>
-          No CAD experience needed. Just describe what you want to build.
-        </p>
-        <Link href="/projects/new" style={{
-          display: 'inline-flex', alignItems: 'center', gap: '8px',
-          color: '#fff',
-          padding: '15px 36px',
-          fontSize: '16px', fontWeight: '700', textDecoration: 'none',
-          letterSpacing: '-0.3px',
-          ...liquidGlassButton,
-        }} onMouseEnter={e => {
-          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)';
-          e.currentTarget.style.transform = 'translateY(-2px)';
-        }} onMouseLeave={e => {
-          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-          e.currentTarget.style.transform = 'translateY(0)';
+        {/* Pill badge */}
+        <div style={{ marginBottom: '28px' }}>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: '8px',
+            background: 'linear-gradient(135deg,#EFF6FF,#F0FDF4)',
+            border: '1px solid #BFDBFE',
+            color: '#1D4ED8', padding: '8px 18px', borderRadius: '100px',
+            fontSize: '13px', fontWeight: '700',
+          }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22C55E', display: 'inline-block', boxShadow: '0 0 0 3px rgba(34,197,94,0.25)' }} />
+            6 AI Agents · Real 3D CAD · Live Physics Simulation
+          </span>
+        </div>
+
+        {/* Headline */}
+        <h1 style={{
+          fontSize: 'clamp(42px,6vw,72px)', fontWeight: '900',
+          color: '#0F172A', lineHeight: '1.08', marginBottom: '24px',
+          letterSpacing: '-2px',
         }}>
-          Start Inventing →
-        </Link>
+          Turn Any Idea Into a
+          <br />
+          <span style={{
+            background: 'linear-gradient(135deg,#2563EB 0%,#7C3AED 50%,#059669 100%)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}>
+            Full Engineering Package
+          </span>
+        </h1>
+
+        {/* Sub */}
+        <p style={{
+          fontSize: '18px', color: '#475569', maxWidth: '580px',
+          margin: '0 auto 44px', lineHeight: '1.75', fontWeight: '400',
+        }}>
+          InventAI runs <strong style={{ color: '#0F172A' }}>6 specialized AI agents</strong> in parallel —
+          generating 3D CAD models, physics simulations, market analysis, research,
+          patent drafts and a full report from a single idea.
+        </p>
+
+        {/* CTA */}
+        <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <Link href="/projects/new" style={{
+            display: 'inline-flex', alignItems: 'center', gap: '10px',
+            background: 'linear-gradient(135deg,#2563EB,#1D4ED8)',
+            color: 'white', padding: '16px 36px', borderRadius: '12px',
+            fontSize: '16px', fontWeight: '800', textDecoration: 'none',
+            boxShadow: '0 6px 24px rgba(37,99,235,0.38)',
+            letterSpacing: '-0.2px',
+          }}>
+            ⚡ Start Inventing Now
+            <span style={{ opacity: 0.85, fontSize: '18px' }}>→</span>
+          </Link>
+          <a href="#how" style={{
+            display: 'inline-flex', alignItems: 'center', gap: '8px',
+            background: '#F8FAFC', border: '1.5px solid #E2E8F0',
+            color: '#334155', padding: '16px 28px', borderRadius: '12px',
+            fontSize: '15px', fontWeight: '600', textDecoration: 'none',
+          }}>
+            See How It Works
+          </a>
+        </div>
+
+        {/* Stats strip */}
+        <div style={{
+          display: 'flex', justifyContent: 'center', gap: '48px',
+          marginTop: '64px', flexWrap: 'wrap',
+        }}>
+          {[
+            { val: '6', label: 'AI Agents' },
+            { val: '3D', label: 'CAD Output' },
+            { val: 'PINN', label: 'Physics Engine' },
+            { val: 'PDF', label: 'Full Report' },
+          ].map(s => (
+            <div key={s.val} style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '32px', fontWeight: '900', color: '#0F172A', letterSpacing: '-1px' }}>{s.val}</div>
+              <div style={{ fontSize: '13px', color: '#94A3B8', fontWeight: '500', marginTop: '2px' }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
       </section>
 
-      {/* ── Footer ──────────────────────────────────────────────── */}
-      <footer style={{
-        borderTop: '1px solid rgba(255,255,255,0.08)',
-        padding: '28px 40px',
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+      {/* ── AGENT CARDS ── */}
+      <section style={{
+        background: '#FAFBFF',
+        borderTop: '1px solid #F1F5F9',
+        borderBottom: '1px solid #F1F5F9',
+        padding: '80px 40px',
       }}>
-        <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.2)', fontWeight: '600' }}>InventAI</span>
-        <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.18)' }}>
-          Netaji Subhash Engineering College
-        </span>
+        <div style={{ maxWidth: '1160px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '56px' }}>
+            <h2 style={{ fontSize: '36px', fontWeight: '800', color: '#0F172A', letterSpacing: '-1px', marginBottom: '12px' }}>
+              6 Agents. One Pipeline.
+            </h2>
+            <p style={{ fontSize: '16px', color: '#64748B', maxWidth: '480px', margin: '0 auto' }}>
+              Each agent is a specialized AI system. They run sequentially and in parallel to cover every dimension of your invention.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '20px' }}>
+            {AGENTS.map((a, i) => (
+              <div key={a.title} style={{
+                background: '#ffffff',
+                border: '1px solid #F1F5F9',
+                borderRadius: '16px',
+                padding: '28px',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+                position: 'relative',
+                overflow: 'hidden',
+                transition: 'transform 0.2s, box-shadow 0.2s',
+              }}>
+                {/* Glow top-left */}
+                <div style={{
+                  position: 'absolute', top: '-30px', left: '-30px',
+                  width: '120px', height: '120px', borderRadius: '50%',
+                  background: a.glow, filter: 'blur(20px)',
+                  pointerEvents: 'none',
+                }} />
+                {/* Number */}
+                <div style={{
+                  position: 'absolute', top: '20px', right: '20px',
+                  fontSize: '48px', fontWeight: '900', color: '#F8FAFC',
+                  lineHeight: 1, letterSpacing: '-2px',
+                  fontFamily: 'Space Grotesk, sans-serif',
+                }}>
+                  {String(i + 1).padStart(2, '0')}
+                </div>
+
+                {/* Icon */}
+                <div style={{
+                  width: '52px', height: '52px', borderRadius: '14px',
+                  background: a.grad,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '24px', marginBottom: '18px',
+                  boxShadow: `0 4px 12px ${a.glow}`,
+                }}>
+                  {a.icon}
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#0F172A', margin: 0 }}>{a.title}</h3>
+                  <span style={{
+                    background: '#F1F5F9', color: '#475569',
+                    fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '20px',
+                    letterSpacing: '0.04em',
+                  }}>{a.badge}</span>
+                </div>
+                <p style={{ fontSize: '13px', color: '#64748B', lineHeight: '1.65', margin: 0 }}>{a.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── HOW IT WORKS ── */}
+      <section id="how" style={{ padding: '80px 40px', background: '#ffffff' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{ fontSize: '36px', fontWeight: '800', color: '#0F172A', letterSpacing: '-1px', marginBottom: '12px' }}>
+            How It Works
+          </h2>
+          <p style={{ fontSize: '16px', color: '#64748B', marginBottom: '56px' }}>Three steps from idea to full engineering package.</p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '24px' }}>
+            {STEPS.map((s, i) => (
+              <div key={s.n} style={{
+                background: '#F8FAFC', border: '1px solid #F1F5F9',
+                borderRadius: '16px', padding: '32px 24px', textAlign: 'center',
+                position: 'relative',
+              }}>
+                <div style={{
+                  width: '52px', height: '52px', borderRadius: '50%',
+                  background: 'linear-gradient(135deg,#2563EB,#7C3AED)',
+                  color: 'white', fontWeight: '900', fontSize: '16px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  margin: '0 auto 20px',
+                  boxShadow: '0 4px 12px rgba(37,99,235,0.3)',
+                }}>
+                  {s.n}
+                </div>
+                <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#0F172A', marginBottom: '8px' }}>{s.label}</h3>
+                <p style={{ fontSize: '13px', color: '#64748B' }}>{s.sub}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── PIPELINE VISUALIZATION ── */}
+      <section style={{
+        background: '#0F172A',
+        padding: '80px 40px',
+      }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{ fontSize: '32px', fontWeight: '800', color: '#ffffff', letterSpacing: '-1px', marginBottom: '12px' }}>
+            Full AI Engineering Pipeline
+          </h2>
+          <p style={{ color: '#94A3B8', fontSize: '15px', marginBottom: '52px' }}>
+            Every component connected — from idea to deliverable.
+          </p>
+
+          {/* Pipeline flow */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0', flexWrap: 'wrap' }}>
+            {[
+              { label: 'User Idea', bg: '#1E293B', border: '#334155', text: '#F8FAFC' },
+              null,
+              { label: 'AI Orchestrator', bg: '#1D4ED8', border: '#3B82F6', text: '#fff' },
+              null,
+              { label: 'CAD\n3D Model', bg: '#1E293B', border: '#3B82F6', text: '#93C5FD' },
+              { label: 'Physics\nSimulation', bg: '#1E293B', border: '#F97316', text: '#FED7AA' },
+              { label: 'Business\nAnalysis', bg: '#1E293B', border: '#10B981', text: '#A7F3D0' },
+              null,
+              { label: 'Patent Draft +\nFull Report', bg: '#059669', border: '#34D399', text: '#fff' },
+            ].map((node, i) => node === null ? (
+              <div key={i} style={{ fontSize: '20px', color: '#334155', margin: '0 4px', userSelect: 'none' }}>→</div>
+            ) : (
+              <div key={i} style={{
+                background: node.bg, border: `1px solid ${node.border}`,
+                borderRadius: '10px', padding: '12px 18px', margin: '6px',
+                textAlign: 'center', minWidth: '100px',
+              }}>
+                <span style={{
+                  fontSize: '12px', fontWeight: '700', color: node.text,
+                  whiteSpace: 'pre-line', lineHeight: '1.5',
+                }}>{node.label}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Output badges */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '44px', flexWrap: 'wrap' }}>
+            {['GLTF', 'STEP', 'STL', 'PINN Heatmap', 'Market Report', 'BOM Excel', 'Patent Draft', 'PDF Report', 'ZIP Package'].map(tag => (
+              <span key={tag} style={{
+                background: '#1E293B', border: '1px solid #334155',
+                color: '#94A3B8', padding: '6px 14px', borderRadius: '100px',
+                fontSize: '12px', fontWeight: '600',
+              }}>{tag}</span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FINAL CTA ── */}
+      <section style={{
+        padding: '80px 40px',
+        background: '#ffffff',
+        textAlign: 'center',
+      }}>
+        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+          <h2 style={{ fontSize: '40px', fontWeight: '900', color: '#0F172A', letterSpacing: '-1.5px', marginBottom: '16px' }}>
+            Ready to build something
+            <span style={{
+              background: 'linear-gradient(135deg,#2563EB,#7C3AED)',
+              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+            }}> new?</span>
+          </h2>
+          <p style={{ color: '#64748B', fontSize: '16px', marginBottom: '36px', lineHeight: '1.7' }}>
+            Describe any invention. InventAI handles the rest — in minutes.
+          </p>
+          <Link href="/projects/new" style={{
+            display: 'inline-flex', alignItems: 'center', gap: '10px',
+            background: 'linear-gradient(135deg,#2563EB,#1D4ED8)',
+            color: 'white', padding: '18px 44px', borderRadius: '14px',
+            fontSize: '17px', fontWeight: '800', textDecoration: 'none',
+            boxShadow: '0 8px 28px rgba(37,99,235,0.38)',
+            letterSpacing: '-0.3px',
+          }}>
+            ⚡ Start Inventing Now →
+          </Link>
+        </div>
+      </section>
+
+      {/* ── FOOTER ── */}
+      <footer style={{
+        borderTop: '1px solid #F1F5F9', padding: '28px 40px',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        background: '#FAFBFF',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '28px', height: '28px', background: 'linear-gradient(135deg,#2563EB,#059669)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ color: 'white', fontWeight: '900', fontSize: '11px' }}>AI</span>
+          </div>
+          <span style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A' }}>InventAI</span>
+        </div>
+        <span style={{ fontSize: '13px', color: '#94A3B8' }}>Netaji Subhash Engineering College · Hackathon 2026</span>
       </footer>
+
     </div>
   );
 }

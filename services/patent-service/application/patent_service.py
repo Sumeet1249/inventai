@@ -20,23 +20,11 @@ class PatentApplicationService:
         """
         Triggers the AI orchestration to analyze an idea for patentability.
         """
-        initial_state: WorkflowState = {
-            "workflow_id": "patent_" + __import__("uuid").uuid4().hex[:8],
-            "session_id": "patent_session",
-            "messages": [],
-            "plan": [],
-            "tasks_completed": [],
-            "current_task": None,
-            "context": {},
-            "final_output": None,
-            "error": None,
-            "retry_count": 0,
-            "token_usage": {},
-            "start_time": __import__("time").time(),
-            "input_data": {"idea": idea_description},
-            "metadata": {},
-            "output_data": {},
-        }
+        initial_state = WorkflowState(
+            workflow_id="temp", 
+            session_id="temp", 
+            input_data={"idea": idea_description}
+        )
         
         # Execute the compiled LangGraph workflow
         final_state = await self.workflow.ainvoke(initial_state)

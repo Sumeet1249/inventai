@@ -21,13 +21,11 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pytest pytest-asyncio
-        pip install -e .
         
     - name: Run Tests
       run: |
-        pytest services/innovation-engine/tests/ -v
-      env:
-        PYTHONPATH: ${{ github.workspace }}
+        # In reality, this would loop through all services
+        pytest services/innovation-engine/tests/
         
     - name: Build Docker Images
       run: |

@@ -20,25 +20,13 @@ class GraphApplicationService:
         Triggers the LangGraph orchestration to traverse the Neo4j database 
         and discover hidden technological/material connections.
         """
-        initial_state: WorkflowState = {
-            "workflow_id": "graph_" + __import__("uuid").uuid4().hex[:8],
-            "session_id": "graph_session",
-            "messages": [],
-            "plan": [],
-            "tasks_completed": [],
-            "current_task": None,
-            "context": {},
-            "final_output": None,
-            "error": None,
-            "retry_count": 0,
-            "token_usage": {},
-            "start_time": __import__("time").time(),
-            "input_data": {"entity_id": entity_id},
-            "metadata": {},
-            "output_data": {},
-        }
+        initial_state = WorkflowState(
+            workflow_id="temp_graph", 
+            session_id="temp_graph", 
+            input_data={"entity_id": entity_id}
+        )
         
-        final_state = await self.workflow.ainvoke(initial_state)
+        final_state = await self.workflow.ainvoke(initial_state.model_dump())
         
         return final_state.get("output_data", {})
 
@@ -79,10 +67,6 @@ app = FastAPI(
     description="Knowledge graph intelligence using Neo4j and LangGraph",
     version="1.0.0"
 )
-
-@app.get("/health", tags=["System"])
-def health():
-    return {"status": "healthy", "service": "graph-service"}
 
 # Lazy import to avoid circular dependencies
 from services.graph_service.api.routers import router
