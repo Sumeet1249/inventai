@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import WorkflowVisualizer from '@/components/dashboard/WorkflowVisualizer';
+import { PhysiXDashboard } from '@/components/physics/PhysiXDashboard';
 
 const ThreeViewer = dynamic(() => import('@/components/cad/ThreeViewer'), { ssr: false });
 
@@ -836,7 +837,23 @@ function ProjectDashboardInner({ params, searchParams }: { params: Promise<{ id:
       });
       
       // Physics after CAD
-      runSSE('physics', `${API}/physics/simulate`, { cad_model_id: projectId, simulation_type: 'stress', boundary_conditions: { force_n: 500, temp_c: 25 }, material_id: 'aluminum' });
+      // PhysiX: Self-Correcting Physics Loop
+      runJSON('physics', `${API}/physics/self-correct`, { 
+        project_id: projectId, 
+        invention_type: ideaText?.toLowerCase().includes('drone') ? 'drone' : 
+                        ideaText?.toLowerCase().includes('exoskeleton') ? 'exoskeleton' : 'bracket',
+        design_params: {
+          thickness_mm: 3.0,
+          material: 'Aluminium 6061',
+          load_n: 500,
+          ambient_temp_c: 25,
+          power_dissipation_w: 10
+        },
+        constraints: [
+          { type: 'structural', parameter: 'max_stress', limit: 250, unit: 'MPa', description: 'Maximum allowed stress' }
+        ],
+        max_iterations: 3
+      });
       
       // Business in parallel
       runSSE('business', `${API}/business/generate`, { project_id: projectId, idea_description: ideaText, project_data: {} });
@@ -1000,8 +1017,8 @@ function ProjectDashboardInner({ params, searchParams }: { params: Promise<{ id:
               />
         )}
 
-        {tab === 'physics' && (agents.physics.done && !agents.physics.error && agents.physics.data ? <PhysicsResult data={agents.physics.data} /> : (
-          <Card><div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8' }}>{agents.physics.error ? `❌ ${agents.physics.status}` : <><Spinner /> &nbsp; {agents.physics.status || 'Running PINN simulation...'}</>}</div></Card>
+        {tab === 'physics' && (agents.physics.done && !agents.physics.error && agents.physics.data ? <PhysiXDashboard selfCorrectionResult={agents.physics.data} /> : (
+          <Card><div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8' }}>{agents.physics.error ? `❌ ${agents.physics.status}` : <><Spinner /> &nbsp; {agents.physics.status || 'Running PhysiX self-correction loop...'}</>}</div></Card>
         ))}
 
         {tab === 'business' && (agents.business.done && !agents.business.error && agents.business.data ? (

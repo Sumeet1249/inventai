@@ -12,4 +12,4 @@ ENV DDE_BACKEND=pytorch
 # Fix protobuf descriptor conflict
 ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
 EXPOSE 8000
-CMD ["uvicorn", "services.physics_service.application.physics_service:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "services.physics_service.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
