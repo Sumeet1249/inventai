@@ -4,6 +4,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import WorkflowVisualizer from '@/components/dashboard/WorkflowVisualizer';
 import { PhysiXDashboard } from '@/components/physics/PhysiXDashboard';
+import { BuildPanel } from '@/components/build/BuildPanel';
+import GlassBuildPanel from '@/components/build/GlassBuildPanel';
 
 const ThreeViewer = dynamic(() => import('@/components/cad/ThreeViewer'), { ssr: false });
 
@@ -230,10 +232,10 @@ const CircuitResult = ({ data, projectId }: { data: any; projectId: string }) =>
 
 // ────────── Unified CAD + Circuit Tab ──────────
 const CadResult = ({
-  data, isGenerating, generationStatus, circuitData, circuitGenerating, circuitStatus,
+  data, isGenerating, generationStatus, circuitData, circuitGenerating, circuitStatus, projectId
 }: {
   data: any; isGenerating?: boolean; generationStatus?: string;
-  circuitData?: any; circuitGenerating?: boolean; circuitStatus?: string;
+  circuitData?: any; circuitGenerating?: boolean; circuitStatus?: string; projectId?: string;
 }) => {
   const BACKEND = (typeof window !== 'undefined')
     ? (window.location.hostname === 'localhost' ? 'http://localhost:8080' : window.location.origin)
@@ -507,6 +509,21 @@ const CadResult = ({
                 </table>
               </div>
             </div>
+
+            {/* BUILD IT Integration - Glassmorphic Panel */}
+            <div style={{ marginTop: '24px' }}>
+              <GlassBuildPanel 
+                projectId={params?.id || 'unknown'}
+                onBuildStart={() => {
+                  // Trigger BUILD IT workflow
+                  console.log('BUILD IT workflow started for project:', params?.id);
+                }}
+                onShoppingListGenerate={() => {
+                  // Navigate to shopping list
+                  console.log('Opening shopping list for project:', params?.id);
+                }}
+              />
+            </div>
           </div>
         )}
       </div>
@@ -681,7 +698,7 @@ function ProjectDashboardInner({ params, searchParams }: { params: Promise<{ id:
   const resolvedSearch = React.use(searchParams);
   const idea = resolvedSearch?.idea || 'Your invention';
 
-  const [tab, setTab] = useState<'overview' | 'cad' | 'physics' | 'business' | 'research' | 'patent' | 'report'>('overview');
+  const [tab, setTab] = useState<'overview' | 'cad' | 'physics' | 'business' | 'research' | 'patent' | 'report' | 'build'>('overview');
   const [agents, setAgents] = useState<Record<string, AgentState>>({
     cad: fresh(), physics: fresh(), business: fresh(), research: fresh(), patent: fresh(), report: fresh(), circuit: fresh(),
   });
@@ -886,6 +903,7 @@ function ProjectDashboardInner({ params, searchParams }: { params: Promise<{ id:
     { key: 'research',  label: 'Research',  icon: '📚' },
     { key: 'patent',    label: 'Patent',    icon: '📜' },
     { key: 'report',    label: 'Report',    icon: '📄' },
+    { key: 'build',     label: 'Build It',  icon: '🛠️' },
   ] as const;
 
   return (
@@ -1523,6 +1541,15 @@ function ProjectDashboardInner({ params, searchParams }: { params: Promise<{ id:
           </Card>
         ))}
       </div>
+
+      {tab === 'build' && (
+        <BuildPanel
+          projectId={resolvedParams.id}
+          designId={resolvedParams.id}
+          circuitData={agents.circuit?.data}
+          cadData={agents.cad?.data}
+        />
+      )}
 
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>

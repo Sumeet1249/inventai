@@ -1,0 +1,12 @@
+{
+  "project_id": "test-001",
+  "design_id": "design-001",
+  "circuit_data": {
+    "components": [
+      {"name": "ESP32", "value": "WROOM-32", "quantity": 1, "voltage": "3.3V"},
+      {"name": "BME280", "value": "I2C", "quantity": 1},
+      {"name": "Resistor", "value": "330Ω", "quantity": 4},
+      {"name": "LED", "value": "5mm", "quantity": 2}
+    ]
+  }
+}

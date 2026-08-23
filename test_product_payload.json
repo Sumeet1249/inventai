@@ -1,0 +1,9 @@
+{
+  "category": "MCU",
+  "name": "ESP32",
+  "variant": "WROOM-32",
+  "voltage": "3.3V",
+  "interface": ["WiFi", "BLE"],
+  "package": "DIP",
+  "specs": {}
+}

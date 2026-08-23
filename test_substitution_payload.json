@@ -1,0 +1,10 @@
+{
+  "component_name": "ESP32",
+  "component_specs": {
+    "voltage": "3.3V",
+    "interface": ["WiFi", "BLE"],
+    "package": "DIP"
+  },
+  "reason": "unavailable",
+  "max_suggestions": 3
+}

@@ -1,0 +1,29 @@
+{
+  "project_id": "test-001",
+  "design_id": "design-001",
+  "bom_items": [
+    {
+      "id": "bom_item_0",
+      "name": "ESP32",
+      "quantity": 1,
+      "is_required": true
+    },
+    {
+      "id": "bom_item_1",
+      "name": "BME280",
+      "quantity": 1,
+      "is_required": true
+    },
+    {
+      "id": "bom_item_2",
+      "name": "Resistor",
+      "quantity": 4,
+      "is_required": true
+    }
+  ],
+  "product_selections": {
+    "bom_item_0": "prod_esp32_robu_001",
+    "bom_item_1": "prod_bme280_robu_002",
+    "bom_item_2": "prod_resistor_robu_003"
+  }
+}
