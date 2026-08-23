@@ -49,15 +49,26 @@ export default function NewProjectPage() {
   };
 
   return (
-    <div style={{ background: '#ffffff', minHeight: '100vh', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{
+      background: `
+        linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f0f9ff 100%),
+        radial-gradient(circle at 20% 50%, rgba(59,130,246,0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(6,182,212,0.08) 0%, transparent 50%)
+      `,
+      backdropFilter: 'blur(10px)',
+      minHeight: '100vh',
+      fontFamily: 'Inter, sans-serif',
+    }}>
 
-      {/* NAV */}
+      {/* NAV (Glassmorphic) */}
       <nav style={{
-        background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid #F1F5F9',
+        background: 'rgba(240, 249, 255, 0.7)',
+        backdropFilter: 'blur(20px)',
+        borderBottom: '1px solid rgba(6, 182, 212, 0.2)',
         padding: '0 40px', height: '64px',
         display: 'flex', alignItems: 'center', gap: '12px',
         position: 'sticky', top: 0, zIndex: 100,
+        boxShadow: '0 2px 16px rgba(59, 130, 246, 0.08)',
       }}>
         <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
           <div style={{
@@ -98,11 +109,13 @@ export default function NewProjectPage() {
               </p>
             </div>
 
-            {/* Form card */}
+            {/* Form card (Glassmorphic) */}
             <div style={{
-              background: '#ffffff', border: '1.5px solid #E2E8F0',
+              background: 'rgba(255, 255, 255, 0.6)',
+              border: '1.5px solid rgba(147, 197, 253, 0.3)',
               borderRadius: '18px', padding: '32px',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+              backdropFilter: 'blur(10px)',
+              boxShadow: '0 8px 32px rgba(59, 130, 246, 0.1)',
             }}>
               <form onSubmit={handleSubmit}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#334155', marginBottom: '10px', letterSpacing: '0.03em', textTransform: 'uppercase' }}>
@@ -166,18 +179,23 @@ export default function NewProjectPage() {
                     key={ex.text}
                     onClick={() => setIdea(ex.text)}
                     style={{
-                      background: '#F8FAFC', border: '1.5px solid #E2E8F0',
+                      background: 'rgba(255, 255, 255, 0.5)',
+                      border: '1.5px solid rgba(147, 197, 253, 0.3)',
                       borderRadius: '10px', padding: '12px 16px',
                       textAlign: 'left', cursor: 'pointer',
                       display: 'flex', alignItems: 'flex-start', gap: '12px',
+                      backdropFilter: 'blur(10px)',
+                      transition: 'all 0.3s',
                     }}
                     onMouseEnter={e => {
-                      (e.currentTarget as HTMLElement).style.borderColor = '#93C5FD';
-                      (e.currentTarget as HTMLElement).style.background = '#EFF6FF';
+                      (e.currentTarget as HTMLElement).style.borderColor = 'rgba(147, 197, 253, 0.5)';
+                      (e.currentTarget as HTMLElement).style.background = 'rgba(239, 246, 255, 0.6)';
+                      (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 24px rgba(59, 130, 246, 0.15)';
                     }}
                     onMouseLeave={e => {
-                      (e.currentTarget as HTMLElement).style.borderColor = '#E2E8F0';
-                      (e.currentTarget as HTMLElement).style.background = '#F8FAFC';
+                      (e.currentTarget as HTMLElement).style.borderColor = 'rgba(147, 197, 253, 0.3)';
+                      (e.currentTarget as HTMLElement).style.background = 'rgba(255, 255, 255, 0.5)';
+                      (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 32px rgba(59, 130, 246, 0.1)';
                     }}
                   >
                     <span style={{ fontSize: '20px', flexShrink: 0 }}>{ex.icon}</span>
@@ -188,11 +206,14 @@ export default function NewProjectPage() {
             </div>
           </div>
 
-          {/* ── RIGHT — Pipeline sidebar ── */}
+          {/* ── RIGHT — Pipeline sidebar (Glassmorphic) ── */}
           <div style={{
-            background: '#F8FAFC', border: '1.5px solid #F1F5F9',
+            background: 'rgba(255, 255, 255, 0.5)',
+            border: '1.5px solid rgba(147, 197, 253, 0.3)',
             borderRadius: '18px', padding: '28px',
             position: 'sticky', top: '80px',
+            backdropFilter: 'blur(10px)',
+            boxShadow: '0 8px 32px rgba(59, 130, 246, 0.08)',
           }}>
             <h3 style={{ fontSize: '15px', fontWeight: '800', color: '#0F172A', marginBottom: '6px', letterSpacing: '-0.3px' }}>
               What happens when you submit
@@ -236,9 +257,11 @@ export default function NewProjectPage() {
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                 {['GLTF', 'STEP', 'STL', 'Heatmap', 'BOM.xlsx', 'Patent.pdf', 'Report.pdf', 'Package.zip'].map(tag => (
                   <span key={tag} style={{
-                    background: '#ffffff', border: '1px solid #E2E8F0',
+                    background: 'rgba(255, 255, 255, 0.6)',
+                    border: '1px solid rgba(147, 197, 253, 0.3)',
                     color: '#475569', padding: '4px 10px', borderRadius: '100px',
                     fontSize: '11px', fontWeight: '600',
+                    backdropFilter: 'blur(10px)',
                   }}>{tag}</span>
                 ))}
               </div>

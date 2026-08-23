@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 
 const AGENTS = [
@@ -59,15 +61,26 @@ const STEPS = [
 
 export default function Home() {
   return (
-    <div style={{ background: '#ffffff', minHeight: '100vh', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{
+      minHeight: '100vh',
+      fontFamily: 'Inter, sans-serif',
+      background: `
+        linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f0f9ff 100%),
+        radial-gradient(circle at 20% 50%, rgba(59,130,246,0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(6,182,212,0.08) 0%, transparent 50%)
+      `,
+      backdropFilter: 'blur(10px)',
+    }}>
 
-      {/* ── NAV ── */}
+      {/* ── NAV (Glassmorphic) ── */}
       <nav style={{
         position: 'sticky', top: 0, zIndex: 100,
-        background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid #F1F5F9',
+        background: 'rgba(240, 249, 255, 0.7)',
+        backdropFilter: 'blur(20px)',
+        borderBottom: '1px solid rgba(6, 182, 212, 0.2)',
         padding: '0 40px', height: '68px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        boxShadow: '0 2px 20px rgba(59, 130, 246, 0.08)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{
@@ -104,14 +117,16 @@ export default function Home() {
         padding: '96px 40px 80px',
         textAlign: 'center',
       }}>
-        {/* Pill badge */}
+        {/* Pill badge (Glassmorphic) */}
         <div style={{ marginBottom: '28px' }}>
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
-            background: 'linear-gradient(135deg,#EFF6FF,#F0FDF4)',
-            border: '1px solid #BFDBFE',
-            color: '#1D4ED8', padding: '8px 18px', borderRadius: '100px',
+            background: 'rgba(224, 242, 254, 0.5)',
+            border: '1px solid rgba(147, 197, 253, 0.4)',
+            color: '#1D4ED8', padding: '10px 20px', borderRadius: '100px',
             fontSize: '13px', fontWeight: '700',
+            backdropFilter: 'blur(10px)',
+            boxShadow: '0 4px 16px rgba(59, 130, 246, 0.1)',
           }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22C55E', display: 'inline-block', boxShadow: '0 0 0 3px rgba(34,197,94,0.25)' }} />
             6 AI Agents · Real 3D CAD · Live Physics Simulation
@@ -145,24 +160,31 @@ export default function Home() {
           patent drafts and a full report from a single idea.
         </p>
 
-        {/* CTA */}
+        {/* CTA (Modern Glass Buttons) */}
         <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
           <Link href="/projects/new" style={{
             display: 'inline-flex', alignItems: 'center', gap: '10px',
-            background: 'linear-gradient(135deg,#2563EB,#1D4ED8)',
+            background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
             color: 'white', padding: '16px 36px', borderRadius: '12px',
             fontSize: '16px', fontWeight: '800', textDecoration: 'none',
-            boxShadow: '0 6px 24px rgba(37,99,235,0.38)',
+            boxShadow: '0 8px 32px rgba(37, 99, 235, 0.4)',
             letterSpacing: '-0.2px',
+            transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
           }}>
             ⚡ Start Inventing Now
-            <span style={{ opacity: 0.85, fontSize: '18px' }}>→</span>
+            <span style={{ opacity: 0.9, fontSize: '18px' }}>→</span>
           </Link>
           <a href="#how" style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
-            background: '#F8FAFC', border: '1.5px solid #E2E8F0',
-            color: '#334155', padding: '16px 28px', borderRadius: '12px',
+            background: 'rgba(255, 255, 255, 0.4)',
+            border: '1.5px solid rgba(147, 197, 253, 0.4)',
+            color: '#1D4ED8', padding: '16px 28px', borderRadius: '12px',
             fontSize: '15px', fontWeight: '600', textDecoration: 'none',
+            backdropFilter: 'blur(10px)',
+            boxShadow: '0 4px 16px rgba(59, 130, 246, 0.1)',
+            transition: 'all 0.3s',
+            cursor: 'pointer',
           }}>
             See How It Works
           </a>
@@ -187,12 +209,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── AGENT CARDS ── */}
+      {/* ── AGENT CARDS (Glassmorphic) ── */}
       <section style={{
-        background: '#FAFBFF',
-        borderTop: '1px solid #F1F5F9',
-        borderBottom: '1px solid #F1F5F9',
+        background: `
+          linear-gradient(180deg, rgba(240,249,255,0.4) 0%, rgba(224,242,254,0.3) 100%),
+          linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f0f9ff 100%)
+        `,
+        borderTop: '1px solid rgba(6,182,212,0.1)',
+        borderBottom: '1px solid rgba(6,182,212,0.1)',
         padding: '80px 40px',
+        backdropFilter: 'blur(10px)',
       }}>
         <div style={{ maxWidth: '1160px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '56px' }}>
@@ -207,15 +233,26 @@ export default function Home() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '20px' }}>
             {AGENTS.map((a, i) => (
               <div key={a.title} style={{
-                background: '#ffffff',
-                border: '1px solid #F1F5F9',
+                background: 'rgba(255, 255, 255, 0.6)',
+                border: '1px solid rgba(147, 197, 253, 0.3)',
                 borderRadius: '16px',
                 padding: '28px',
-                boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+                boxShadow: '0 8px 32px rgba(59, 130, 246, 0.08)',
+                backdropFilter: 'blur(10px)',
                 position: 'relative',
                 overflow: 'hidden',
-                transition: 'transform 0.2s, box-shadow 0.2s',
-              }}>
+                transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.boxShadow = '0 16px 48px rgba(59, 130, 246, 0.15)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 8px 32px rgba(59, 130, 246, 0.08)';
+              }}
+              >
                 {/* Glow top-left */}
                 <div style={{
                   position: 'absolute', top: '-30px', left: '-30px',
@@ -259,8 +296,17 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── HOW IT WORKS ── */}
-      <section id="how" style={{ padding: '80px 40px', background: '#ffffff' }}>
+      {/* ── HOW IT WORKS (Glassmorphic) ── */}
+      <section id="how" style={{
+        padding: '80px 40px',
+        background: `
+          linear-gradient(180deg, rgba(224,242,254,0.3) 0%, rgba(240,249,255,0.4) 100%),
+          linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f0f9ff 100%)
+        `,
+        backdropFilter: 'blur(10px)',
+        borderTop: '1px solid rgba(6,182,212,0.1)',
+        borderBottom: '1px solid rgba(6,182,212,0.1)',
+      }}>
         <div style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center' }}>
           <h2 style={{ fontSize: '36px', fontWeight: '800', color: '#0F172A', letterSpacing: '-1px', marginBottom: '12px' }}>
             How It Works
@@ -270,9 +316,14 @@ export default function Home() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '24px' }}>
             {STEPS.map((s, i) => (
               <div key={s.n} style={{
-                background: '#F8FAFC', border: '1px solid #F1F5F9',
-                borderRadius: '16px', padding: '32px 24px', textAlign: 'center',
+                background: 'rgba(255, 255, 255, 0.5)',
+                border: '1px solid rgba(147, 197, 253, 0.3)',
+                borderRadius: '16px', padding: '32px 24px',
+                backdropFilter: 'blur(10px)',
+                boxShadow: '0 8px 24px rgba(59, 130, 246, 0.08)',
                 position: 'relative',
+                transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                textAlign: 'center',
               }}>
                 <div style={{
                   width: '52px', height: '52px', borderRadius: '50%',
@@ -292,10 +343,17 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── PIPELINE VISUALIZATION ── */}
+      {/* ── PIPELINE VISUALIZATION (Dark Glass) ── */}
       <section style={{
-        background: '#0F172A',
+        background: `
+          linear-gradient(135deg, #1a1f3a 0%, #0f172a 50%, #1a1f3a 100%),
+          radial-gradient(circle at 50% 0%, rgba(37,99,235,0.15) 0%, transparent 60%),
+          radial-gradient(circle at 0% 100%, rgba(59,130,246,0.08) 0%, transparent 60%)
+        `,
+        backdropFilter: 'blur(10px)',
         padding: '80px 40px',
+        borderTop: '1px solid rgba(147, 197, 253, 0.1)',
+        borderBottom: '1px solid rgba(147, 197, 253, 0.1)',
       }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto', textAlign: 'center' }}>
           <h2 style={{ fontSize: '32px', fontWeight: '800', color: '#ffffff', letterSpacing: '-1px', marginBottom: '12px' }}>
@@ -378,9 +436,11 @@ export default function Home() {
 
       {/* ── FOOTER ── */}
       <footer style={{
-        borderTop: '1px solid #F1F5F9', padding: '28px 40px',
+        borderTop: '1px solid rgba(6, 182, 212, 0.2)', padding: '28px 40px',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        background: '#FAFBFF',
+        background: 'rgba(240, 249, 255, 0.4)',
+        backdropFilter: 'blur(20px)',
+        boxShadow: '0 -2px 16px rgba(59, 130, 246, 0.06)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ width: '28px', height: '28px', background: 'linear-gradient(135deg,#2563EB,#059669)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

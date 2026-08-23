@@ -49,7 +49,7 @@ const SectionHeader = ({ icon, title, badge, badgeType }: any) => (
 );
 
 const Card = ({ children, style = {} }: any) => (
-  <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '24px', ...style }}>
+  <div style={{ background: 'rgba(255, 255, 255, 0.6)', border: '1px solid rgba(147, 197, 253, 0.3)', borderRadius: '12px', padding: '24px', backdropFilter: 'blur(10px)', boxShadow: '0 8px 32px rgba(59, 130, 246, 0.08)', ...style }}>
     {children}
   </div>
 );
@@ -889,9 +889,17 @@ function ProjectDashboardInner({ params, searchParams }: { params: Promise<{ id:
   ] as const;
 
   return (
-    <div style={{ background: '#F8FAFC', minHeight: '100vh' }}>
-      {/* Top Nav */}
-      <nav style={{ background: '#fff', borderBottom: '1px solid #E2E8F0', padding: '0 24px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
+    <div style={{
+      background: `
+        linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f0f9ff 100%),
+        radial-gradient(circle at 20% 50%, rgba(59,130,246,0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(6,182,212,0.06) 0%, transparent 50%)
+      `,
+      backdropFilter: 'blur(10px)',
+      minHeight: '100vh',
+    }}>
+      {/* Top Nav (Glassmorphic) */}
+      <nav style={{ background: 'rgba(240, 249, 255, 0.7)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(6, 182, 212, 0.2)', padding: '0 24px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 16px rgba(59, 130, 246, 0.08)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
             <div style={{ width: '28px', height: '28px', background: 'linear-gradient(135deg,#2563EB,#059669)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -915,8 +923,8 @@ function ProjectDashboardInner({ params, searchParams }: { params: Promise<{ id:
         </div>
       </nav>
 
-      {/* Tab Bar */}
-      <div style={{ background: '#fff', borderBottom: '1px solid #E2E8F0', padding: '0 24px', display: 'flex', gap: '4px', overflowX: 'auto' }}>
+      {/* Tab Bar (Glass) */}
+      <div style={{ background: 'rgba(255, 255, 255, 0.3)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(6, 182, 212, 0.1)', padding: '0 24px', display: 'flex', gap: '4px', overflowX: 'auto' }}>
         {TABS.map(t => {
           const ag = agents[t.key as keyof typeof agents];
           const isDone = ag?.done && !ag?.error;
@@ -1525,7 +1533,19 @@ function ProjectDashboardInner({ params, searchParams }: { params: Promise<{ id:
 export default function ProjectDashboard({ params, searchParams }: { params: Promise<{ id: string }>, searchParams: Promise<{ idea?: string }> }) {
   return (
     <React.Suspense fallback={
-      <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '16px' }}>
+      <div style={{
+        minHeight: '100vh',
+        background: `
+          linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f0f9ff 100%),
+          radial-gradient(circle at 20% 50%, rgba(59,130,246,0.08) 0%, transparent 50%)
+        `,
+        backdropFilter: 'blur(10px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        gap: '16px'
+      }}>
         <div style={{ width: '36px', height: '36px', border: '3px solid #E2E8F0', borderTop: '3px solid #2563EB', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
         <p style={{ fontSize: '14px', color: '#94A3B8', fontWeight: '500' }}>Loading project...</p>
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
